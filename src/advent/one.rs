@@ -8,18 +8,17 @@ pub fn highest_total_calories() {
     let reader = BufReader::new(file);
 
     let mut elf_calories: Vec<u32> = Vec::new();
-    elf_calories.push(0);
-    let mut index: usize = 0;
+    let mut cal_add: u32 = 0;
 
     for line in reader.lines() {
         let l = line.unwrap();
 
         if l.is_empty() {
-            elf_calories.push(0);
-            index += 1;
+            elf_calories.push(cal_add);
+            cal_add = 0;
         } else {
             let cal: u32 = l.trim().parse().expect("Cannot parse line as number");
-            elf_calories[index] += cal;
+            cal_add += cal;
         }
     }
 
