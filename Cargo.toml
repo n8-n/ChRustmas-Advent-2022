@@ -1,5 +1,5 @@
 [package]
-name = "ChRustmas-Advent-2022"
+name = "chrustmas_advent_2022"
 version = "0.1.0"
 edition = "2021"
 
