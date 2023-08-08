@@ -3,7 +3,7 @@
 use advent::answers;
 use std::io;
 
-pub mod advent;
+mod advent;
 
 fn main() {
     println!("Which exercise answer would you like? [1-25]");
