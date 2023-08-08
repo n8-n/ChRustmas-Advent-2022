@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use advent::one;
+use advent::answers;
 use std::io;
 
 pub mod advent;
@@ -24,7 +24,7 @@ fn main() {
 
 fn run_fn_for_exercise(n: u32) {
     match n {
-        1 => one::highest_total_calories(),
+        1 => answers::one(),
         _ => println!("Exercise not yet implemented."),
     }
 }
