@@ -19,7 +19,6 @@ pub fn read_file_as_vector(filename: &str) -> Vec<String> {
     lines
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -27,7 +26,7 @@ mod tests {
     #[test]
     fn test_read_file_lines() {
         let lines = read_file_as_vector("resources/test/rps.txt");
-        
+
         assert_eq!(3, lines.len());
         let expected_values: Vec<String> = vec!["A Y".to_string(), "B X".into(), "C Z".into()];
         assert_eq!(expected_values, lines);

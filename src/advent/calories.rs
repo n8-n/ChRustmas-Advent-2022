@@ -22,8 +22,6 @@ pub fn highest_total_calories_from_file(filename: &str) -> Vec<u32> {
     elf_calories
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -31,7 +29,7 @@ mod tests {
     #[test]
     fn test_calories_file_read_and_sum() {
         let calories = highest_total_calories_from_file("resources/test/calories_test.txt");
-        
+
         assert_eq!(5, calories.len());
         let expected_values: Vec<u32> = vec![4000, 6000, 10000, 11000, 24000];
         assert_eq!(expected_values, calories);
