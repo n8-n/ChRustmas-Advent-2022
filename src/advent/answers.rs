@@ -10,8 +10,8 @@ pub fn one() {
     println!("Highest total calories = {}", elf_calories[length - 1]);
 
     // Part 2
-    let top3: &[u32] = &elf_calories[length - 3..length];
-    println!("Sum of highest 3 calories = {}", top3.iter().sum::<u32>());
+    let top3: &[i32] = &elf_calories[length - 3..length];
+    println!("Sum of highest 3 calories = {}", top3.iter().sum::<i32>());
 }
 
 pub fn two() {

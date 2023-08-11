@@ -1,17 +1,17 @@
 use super::io::*;
 
-pub fn highest_total_calories_from_file(filename: &str) -> Vec<u32> {
+pub fn highest_total_calories_from_file(filename: &str) -> Vec<i32> {
     let lines = read_file_as_vector(filename);
 
-    let mut elf_calories = Vec::<u32>::new();
-    let mut cal_add: u32 = 0;
+    let mut elf_calories = Vec::<i32>::new();
+    let mut cal_add = 0;
 
     for l in lines {
         if l.is_empty() {
             elf_calories.push(cal_add);
             cal_add = 0;
         } else {
-            let cal: u32 = l.trim().parse().expect("Cannot parse line as number");
+            let cal: i32 = l.trim().parse().expect("Cannot parse line as number");
             cal_add += cal;
         }
     }
@@ -31,7 +31,7 @@ mod tests {
         let calories = highest_total_calories_from_file("resources/test/calories_test.txt");
 
         assert_eq!(5, calories.len());
-        let expected_values: Vec<u32> = vec![4000, 6000, 10000, 11000, 24000];
+        let expected_values: Vec<i32> = vec![4000, 6000, 10000, 11000, 24000];
         assert_eq!(expected_values, calories);
     }
 }
