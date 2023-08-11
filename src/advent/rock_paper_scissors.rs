@@ -1,18 +1,27 @@
 use super::io::*;
 
-pub fn calculate_score_for_file(filename: &str) -> u32 {
+pub fn calculate_score_for_file(filename: &str, mode: &ParseMode) -> u32 {
     let lines = read_file_as_vector(filename);
 
     let mut total_score: u32 = 0;
 
     for l in lines {
-        total_score += Round::from_line(&l).score() as u32;
+        total_score += Round::from_line(&l, &mode).score() as u32;
     }
 
     total_score
 }
 
-#[derive(Debug, PartialEq, Eq)]
+/// How we should parse/interpret the second column of the text file.
+///     Choice: column is what you shape you should choose.
+///     Result: column is the result you want to occur.
+#[derive(Debug)]
+pub enum ParseMode {
+    Choice,
+    Result
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 enum Shape {
     Rock,
     Paper,
@@ -43,13 +52,13 @@ impl Shape {
 
     fn is_win(&self, other: &Shape) -> Result {
         match (self, other) {
-            (Shape::Rock, Shape::Paper) => Result::Loss,
             (Shape::Rock, Shape::Scissors) => Result::Win,
-            (Shape::Scissors, Shape::Paper) => Result::Win,
-            (Shape::Scissors, Shape::Rock) => Result::Loss,
             (Shape::Paper, Shape::Rock) => Result::Win,
+            (Shape::Scissors, Shape::Paper) => Result::Win,
+            (Shape::Rock, Shape::Paper) => Result::Loss,
+            (Shape::Scissors, Shape::Rock) => Result::Loss,
             (Shape::Paper, Shape::Scissors) => Result::Loss,
-            _ => Result::Draw,
+            _ => Result::Draw
         }
     }
 
@@ -71,14 +80,47 @@ impl Result {
             Result::Loss => 0
         }
     }
+
+    fn from_char(c: char) -> Result {
+        match c {
+            'X' => Result::Loss,
+            'Y' => Result::Draw,
+            'Z' => Result::Win,
+            _ => panic!("Cannot parse Result from character."),
+        }
+    }
+
+    fn get_shape_to_match_result(&self, their_shape: &Shape) -> Shape {
+        match (self, their_shape) {
+            (Result::Win, Shape::Rock) => Shape::Paper,
+            (Result::Win, Shape::Scissors) => Shape::Rock,
+            (Result::Win, Shape::Paper) => Shape::Scissors,
+            (Result::Loss, Shape::Rock) => Shape::Scissors,
+            (Result::Loss, Shape::Scissors) => Shape::Paper,
+            (Result::Loss, Shape::Paper) => Shape::Rock,
+            _ => their_shape.clone()
+        }
+    }
 }
 
 impl Round {
-    fn from_line(l: &String) -> Round {
-        Round {
-            theirs: Shape::from_char(l.chars().nth(0).unwrap()),
-            mine: Shape::from_char(l.chars().nth(2).unwrap()),
-        }
+    fn from_line(l: &String, mode: &ParseMode) -> Round {
+        match mode {
+            ParseMode::Choice => {
+                Round {
+                    theirs: Shape::from_char(l.chars().nth(0).unwrap()),
+                    mine: Shape::from_char(l.chars().nth(2).unwrap()),
+                }
+            },
+            ParseMode::Result => {
+                let temp_shape = Shape::from_char(l.chars().nth(0).unwrap());
+                let result = Result::from_char(l.chars().nth(2).unwrap());
+                Round {
+                    mine: result.get_shape_to_match_result(&temp_shape),
+                    theirs: temp_shape,
+                }
+            }
+        } 
     }
 
     fn is_my_win(&self) -> Result {
@@ -100,9 +142,14 @@ mod tests {
 
     #[test]
     fn test_round_from_line_parse() {
-        let line = String::from("X B");
+        let line = String::from("A Z");
 
-        let r = Round::from_line(&line);
+        let r = Round::from_line(&line, &ParseMode::Choice);
+
+        assert_eq!(Shape::Rock, r.theirs);
+        assert_eq!(Shape::Scissors, r.mine);
+
+        let r = Round::from_line(&line, &ParseMode::Result);
 
         assert_eq!(Shape::Rock, r.theirs);
         assert_eq!(Shape::Paper, r.mine);
@@ -144,7 +191,10 @@ mod tests {
 
     #[test]
     fn test_sum_scores() {
-        let result = calculate_score_for_file("resources/test/rps.txt");
+        let result = calculate_score_for_file("resources/test/rps.txt", &ParseMode::Choice);
         assert_eq!(15, result);
+
+        let result = calculate_score_for_file("resources/test/rps.txt", &ParseMode::Result);
+        assert_eq!(12, result);
     }
 }

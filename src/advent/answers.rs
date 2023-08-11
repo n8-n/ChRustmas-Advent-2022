@@ -1,5 +1,5 @@
 use super::calories::*;
-use super::rock_paper_scissors::calculate_score_for_file;
+use super::rock_paper_scissors::{calculate_score_for_file, ParseMode};
 
 pub fn one() {
     let elf_calories = highest_total_calories_from_file("resources/elf_calories.txt");
@@ -15,6 +15,9 @@ pub fn one() {
 }
 
 pub fn two() {
-    let rps_score_total = calculate_score_for_file("resources/rock_paper_scissors.txt");
+    let rps_score_total = calculate_score_for_file("resources/rock_paper_scissors.txt", &ParseMode::Choice);
     println!("Total score for Rock Paper Scissors = {rps_score_total}");
+
+    let rps_score_total = calculate_score_for_file("resources/rock_paper_scissors.txt", &ParseMode::Result);
+    println!("Total score for Rock Paper Scissors part 2 = {rps_score_total}");
 }
