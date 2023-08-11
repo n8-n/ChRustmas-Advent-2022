@@ -1,12 +1,12 @@
 use super::io::*;
 
-pub fn calculate_score_for_file(filename: &str, mode: &ParseMode) -> i32 {
+pub fn calculate_score_for_file(filename: &str, mode: &ParseMode) -> u32 {
     let lines = read_file_as_vector(filename);
 
-    let mut total_score = 0;
+    let mut total_score: u32 = 0;
 
     for l in lines {
-        total_score += Round::from_line(&l, &mode).score() as i32;
+        total_score += Round::from_line(&l, &mode).score() as u32;
     }
 
     total_score
@@ -42,7 +42,7 @@ struct Round {
 }
 
 impl Shape {
-    fn value(&self) -> i8 {
+    fn value(&self) -> u8 {
         match self {
             Shape::Rock => 1,
             Shape::Paper => 2,
@@ -73,7 +73,7 @@ impl Shape {
 }
 
 impl Result {
-    fn value(&self) -> i8 {
+    fn value(&self) -> u8 {
         match self {
             Result::Win => 6,
             Result::Draw => 3,
@@ -127,7 +127,7 @@ impl Round {
         self.mine.is_win(&self.theirs)
     }
 
-    fn score(&self) -> i8 {
+    fn score(&self) -> u8 {
         let result = self.is_my_win();
         self.mine.value() + result.value()
     }
