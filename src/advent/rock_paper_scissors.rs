@@ -18,7 +18,7 @@ pub fn calculate_score_for_file(filename: &str, mode: &ParseMode) -> u32 {
 #[derive(Debug)]
 pub enum ParseMode {
     Choice,
-    Result
+    Result,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -43,7 +43,7 @@ struct Round {
 
 impl Shape {
     fn value(&self) -> u8 {
-        match self {
+        match *self {
             Shape::Rock => 1,
             Shape::Paper => 2,
             Shape::Scissors => 3,
@@ -51,14 +51,17 @@ impl Shape {
     }
 
     fn is_win(&self, other: &Shape) -> Result {
-        match (self, other) {
-            (Shape::Rock, Shape::Scissors) => Result::Win,
-            (Shape::Paper, Shape::Rock) => Result::Win,
-            (Shape::Scissors, Shape::Paper) => Result::Win,
-            (Shape::Rock, Shape::Paper) => Result::Loss,
-            (Shape::Scissors, Shape::Rock) => Result::Loss,
-            (Shape::Paper, Shape::Scissors) => Result::Loss,
-            _ => Result::Draw
+        use self::Result::*;
+        use Shape::*;
+
+        match (*self, other) {
+            (Rock, Scissors) => Win,
+            (Paper, Rock) => Win,
+            (Scissors, Paper) => Win,
+            (Rock, Paper) => Loss,
+            (Scissors, Rock) => Loss,
+            (Paper, Scissors) => Loss,
+            _ => Draw,
         }
     }
 
@@ -77,7 +80,7 @@ impl Result {
         match self {
             Result::Win => 6,
             Result::Draw => 3,
-            Result::Loss => 0
+            Result::Loss => 0,
         }
     }
 
@@ -91,14 +94,17 @@ impl Result {
     }
 
     fn get_shape_to_match_result(&self, their_shape: &Shape) -> Shape {
+        use self::Result::*;
+        use Shape::*;
+
         match (self, their_shape) {
-            (Result::Win, Shape::Rock) => Shape::Paper,
-            (Result::Win, Shape::Scissors) => Shape::Rock,
-            (Result::Win, Shape::Paper) => Shape::Scissors,
-            (Result::Loss, Shape::Rock) => Shape::Scissors,
-            (Result::Loss, Shape::Scissors) => Shape::Paper,
-            (Result::Loss, Shape::Paper) => Shape::Rock,
-            _ => their_shape.clone()
+            (Win, Rock) => Paper,
+            (Win, Scissors) => Rock,
+            (Win, Paper) => Scissors,
+            (Loss, Rock) => Scissors,
+            (Loss, Scissors) => Paper,
+            (Loss, Paper) => Rock,
+            _ => their_shape.clone(),
         }
     }
 }
@@ -106,11 +112,9 @@ impl Result {
 impl Round {
     fn from_line(l: &String, mode: &ParseMode) -> Round {
         match mode {
-            ParseMode::Choice => {
-                Round {
-                    theirs: Shape::from_char(l.chars().nth(0).unwrap()),
-                    mine: Shape::from_char(l.chars().nth(2).unwrap()),
-                }
+            ParseMode::Choice => Round {
+                theirs: Shape::from_char(l.chars().nth(0).unwrap()),
+                mine: Shape::from_char(l.chars().nth(2).unwrap()),
             },
             ParseMode::Result => {
                 let temp_shape = Shape::from_char(l.chars().nth(0).unwrap());
@@ -120,7 +124,7 @@ impl Round {
                     theirs: temp_shape,
                 }
             }
-        } 
+        }
     }
 
     fn is_my_win(&self) -> Result {
@@ -132,7 +136,6 @@ impl Round {
         self.mine.value() + result.value()
     }
 }
-
 
 //
 //

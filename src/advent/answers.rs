@@ -15,9 +15,11 @@ pub fn one() {
 }
 
 pub fn two() {
-    let rps_score_total = calculate_score_for_file("resources/rock_paper_scissors.txt", &ParseMode::Choice);
+    let rps_score_total =
+        calculate_score_for_file("resources/rock_paper_scissors.txt", &ParseMode::Choice);
     println!("Total score for Rock Paper Scissors = {rps_score_total}");
 
-    let rps_score_total = calculate_score_for_file("resources/rock_paper_scissors.txt", &ParseMode::Result);
+    let rps_score_total =
+        calculate_score_for_file("resources/rock_paper_scissors.txt", &ParseMode::Result);
     println!("Total score for Rock Paper Scissors part 2 = {rps_score_total}");
 }

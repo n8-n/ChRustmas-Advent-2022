@@ -13,7 +13,10 @@ fn main() {
         .read_line(&mut choice)
         .expect("Could not read line");
 
-    let choice: u8 = choice.trim().parse().expect("Not a number, or number is too large.");
+    let choice: u8 = choice
+        .trim()
+        .parse()
+        .expect("Not a number, or number is too large.");
 
     if choice < 1 || choice > 25 {
         println!("Not a valid exercise number. Should be 1-25.");
