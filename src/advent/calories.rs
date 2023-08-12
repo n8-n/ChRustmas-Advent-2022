@@ -28,7 +28,7 @@ mod tests {
 
     #[test]
     fn test_calories_file_read_and_sum() {
-        let calories = highest_total_calories_from_file("resources/test/calories_test.txt");
+        let calories = highest_total_calories_from_file("resources/test/01_calories.txt");
 
         assert_eq!(5, calories.len());
         let expected_values: Vec<u32> = vec![4000, 6000, 10000, 11000, 24000];

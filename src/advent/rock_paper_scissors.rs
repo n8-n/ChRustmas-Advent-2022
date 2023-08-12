@@ -194,10 +194,12 @@ mod tests {
 
     #[test]
     fn test_sum_scores() {
-        let result = calculate_score_for_file("resources/test/rps.txt", &ParseMode::Choice);
+        let filename = "resources/test/02_rps.txt";
+
+        let result = calculate_score_for_file(filename, &ParseMode::Choice);
         assert_eq!(15, result);
 
-        let result = calculate_score_for_file("resources/test/rps.txt", &ParseMode::Result);
+        let result = calculate_score_for_file(filename, &ParseMode::Result);
         assert_eq!(12, result);
     }
 }

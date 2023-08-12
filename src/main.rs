@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-use advent::answers;
 use std::io;
 
 mod advent;
@@ -26,9 +25,12 @@ fn main() {
 }
 
 fn run_fn_for_exercise(n: u8) {
+    use advent::answers::*;
+
     match n {
-        1 => answers::one(),
-        2 => answers::two(),
+        1 => one(),
+        2 => two(),
+        3 => three(),
         _ => println!("Exercise not yet implemented."),
     }
 }
