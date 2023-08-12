@@ -1,7 +1,7 @@
-use super::io::*;
+use super::io;
 
 pub fn highest_total_calories_from_file(filename: &str) -> Vec<u32> {
-    let lines = read_file_as_vector(filename);
+    let lines = io::read_file_as_vector(filename);
 
     let mut elf_calories = Vec::<u32>::new();
     let mut cal_add: u32 = 0;

@@ -1,7 +1,7 @@
-use super::io::*;
+use super::io;
 
 pub fn get_sum_of_priorities_for_common_items(filename: &str) -> usize {
-    let lines = read_file_as_vector(filename);
+    let lines = io::read_file_as_vector(filename);
     return lines.iter().fold(0, |acc, l: &String| -> usize { acc + Rucksack::from_string(l).common_item_value() });
 }
 
