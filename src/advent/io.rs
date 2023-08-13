@@ -25,7 +25,7 @@ mod tests {
 
     #[test]
     fn test_read_file_lines() {
-        let lines = read_file_as_vector("resources/test/rps.txt");
+        let lines = read_file_as_vector("resources/test/02_rps.txt");
 
         assert_eq!(3, lines.len());
         let expected_values: Vec<String> = vec!["A Y".to_string(), "B X".into(), "C Z".into()];

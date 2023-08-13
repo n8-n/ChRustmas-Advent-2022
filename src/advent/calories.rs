@@ -1,7 +1,7 @@
-use super::io::*;
+use super::io;
 
 pub fn highest_total_calories_from_file(filename: &str) -> Vec<u32> {
-    let lines = read_file_as_vector(filename);
+    let lines = io::read_file_as_vector(filename);
 
     let mut elf_calories = Vec::<u32>::new();
     let mut cal_add: u32 = 0;
@@ -28,7 +28,7 @@ mod tests {
 
     #[test]
     fn test_calories_file_read_and_sum() {
-        let calories = highest_total_calories_from_file("resources/test/calories_test.txt");
+        let calories = highest_total_calories_from_file("resources/test/01_calories.txt");
 
         assert_eq!(5, calories.len());
         let expected_values: Vec<u32> = vec![4000, 6000, 10000, 11000, 24000];

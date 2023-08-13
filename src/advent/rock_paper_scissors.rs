@@ -1,7 +1,7 @@
-use super::io::*;
+use super::io;
 
 pub fn calculate_score_for_file(filename: &str, mode: &ParseMode) -> u32 {
-    let lines = read_file_as_vector(filename);
+    let lines = io::read_file_as_vector(filename);
 
     let mut total_score: u32 = 0;
 
@@ -194,10 +194,12 @@ mod tests {
 
     #[test]
     fn test_sum_scores() {
-        let result = calculate_score_for_file("resources/test/rps.txt", &ParseMode::Choice);
+        let filename = "resources/test/02_rps.txt";
+
+        let result = calculate_score_for_file(filename, &ParseMode::Choice);
         assert_eq!(15, result);
 
-        let result = calculate_score_for_file("resources/test/rps.txt", &ParseMode::Result);
+        let result = calculate_score_for_file(filename, &ParseMode::Result);
         assert_eq!(12, result);
     }
 }

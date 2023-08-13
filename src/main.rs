@@ -29,6 +29,7 @@ fn run_fn_for_exercise(n: u8) {
     match n {
         1 => answers::one(),
         2 => answers::two(),
+        3 => answers::three(),
         _ => println!("Exercise not yet implemented."),
     }
 }
