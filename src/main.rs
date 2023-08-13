@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use std::io;
 use advent::answers;
+use std::io;
 
 mod advent;
 

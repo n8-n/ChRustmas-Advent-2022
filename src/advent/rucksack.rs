@@ -1,8 +1,37 @@
 use super::io;
 
-pub fn get_sum_of_priorities_for_common_items(filename: &str) -> usize {
+pub fn get_sum_of_priorities_for_common_items(rucksacks: &Vec<Rucksack>) -> usize {
+    rucksacks.iter().fold(0, |acc, rs: &Rucksack| -> usize {
+        acc + rs.common_item_value()
+    })
+}
+
+pub fn get_sum_of_priorities_for_group(rucksacks: &Vec<Rucksack>) -> usize {
+    rucksacks
+        .chunks(3)
+        .map(|rs: &[Rucksack]| rs[0].group_item_value())
+        .fold(0, |acc, g: usize| -> usize { acc + g })
+}
+
+pub fn get_rucksacks_from_file(filename: &str) -> Vec<Rucksack> {
     let lines = io::read_file_as_vector(filename);
-    return lines.iter().fold(0, |acc, l: &String| -> usize { acc + Rucksack::from_string(l).common_item_value() });
+
+    lines
+        .chunks(3)
+        .map(|ch: &[String]| -> Vec<Rucksack> {
+            let common = get_common_char(vec![&ch[0], &ch[1], &ch[2]]);
+
+            ch.iter()
+                .map(|l: &String| -> Rucksack {
+                    let mut rs = Rucksack::from_string(l);
+                    rs.add_group_value(common.unwrap());
+
+                    rs
+                })
+                .collect::<Vec<Rucksack>>()
+        })
+        .flatten()
+        .collect::<Vec<Rucksack>>()
 }
 
 mod priority {
@@ -24,9 +53,10 @@ mod priority {
 }
 
 #[derive(Debug)]
-struct Rucksack {
+pub struct Rucksack {
     compartments: (String, String),
     common_item: char,
+    group_common: Option<char>,
 }
 
 impl Rucksack {
@@ -35,25 +65,38 @@ impl Rucksack {
 
         Rucksack {
             compartments: (first.to_string(), second.to_string()),
-            common_item: Self::get_common_char(first, second),
+            common_item: get_common_char(vec![&first, &second]).unwrap(),
+            group_common: None,
         }
-    }
-
-    fn get_common_char(s1: &str, s2: &str) -> char {
-        let mut common = '_';
-
-        s1.chars().for_each(|c| {
-            if s2.contains(c) {
-                common = c;
-            }
-        });
-
-        common
     }
 
     fn common_item_value(&self) -> usize {
         priority::get_priority(self.common_item)
     }
+
+    fn group_item_value(&self) -> usize {
+        priority::get_priority(self.group_common.expect("No value for common group value"))
+    }
+
+    fn add_group_value(&mut self, c: char) {
+        self.group_common = Some(c);
+    }
+}
+
+fn get_common_char(str_vec: Vec<&str>) -> Option<char> {
+    'char_loop: for c in str_vec[0].chars() {
+        for (index, s) in str_vec[1..].iter().enumerate() {
+            if !s.contains(c) {
+                continue 'char_loop;
+            } else {
+                if index == str_vec.len() - 2 {
+                    return Some(c);
+                }
+            }
+        }
+    }
+
+    return None;
 }
 
 //
@@ -65,8 +108,13 @@ mod tests {
 
     #[test]
     fn test_sum_of_rucksack_commons_items_from_file() {
-        let ans = get_sum_of_priorities_for_common_items("resources/test/03_rucksack.txt");
+        let rs = get_rucksacks_from_file("resources/test/03_rucksack.txt");
+
+        let ans = get_sum_of_priorities_for_common_items(&rs);
         assert_eq!(157, ans);
+
+        let ans = get_sum_of_priorities_for_group(&rs);
+        assert_eq!(70, ans);
     }
 
     #[test]
@@ -86,5 +134,17 @@ mod tests {
         );
         assert_eq!('P', rs.common_item);
         assert_eq!(42, rs.common_item_value());
+    }
+
+    #[test]
+    fn test_common_char() {
+        let v = vec!["WgXc", "YYcs", "WcY", "hHcH"];
+        assert_eq!('c', get_common_char(v).unwrap());
+
+        let v = vec!["WgXc"];
+        assert_eq!(None, get_common_char(v));
+
+        let v = vec!["WgXc", "YYcs"];
+        assert_eq!('c', get_common_char(v).unwrap());
     }
 }
