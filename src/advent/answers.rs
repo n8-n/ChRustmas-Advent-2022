@@ -33,8 +33,13 @@ pub fn three() {
     let rucksacks = rucksack::get_rucksacks_from_file("resources/03_rucksack.txt");
 
     let priority_sum = rucksack::get_sum_of_priorities_for_common_items(&rucksacks);
-    println!("Part 1: Sum of priorities for items is {priority_sum}");
+    println!("Part 1: Sum of priorities for items = {priority_sum}");
 
     let group_sum = rucksack::get_sum_of_priorities_for_group(&rucksacks);
-    println!("Part 2: Sum of priorities for group items is {group_sum}");
+    println!("Part 2: Sum of priorities for group items = {group_sum}");
+}
+
+pub fn four() {
+    let answer = "blah";
+    println!("Part 1: number of overlapping cleaning pairs = {:?}", answer);
 }
