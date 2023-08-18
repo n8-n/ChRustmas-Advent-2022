@@ -12,7 +12,7 @@ pub fn read_file_as_vector(filename: &str) -> Vec<String> {
         if let Ok(l) = line {
             lines.push(l);
         } else {
-            println!("Could not read line!");
+            panic!("Could not read line!");
         }
     }
 
