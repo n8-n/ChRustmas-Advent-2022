@@ -1,7 +1,7 @@
 use super::calories;
-use super::rock_paper_scissors::{{self as rps, ParseMode}};
-use super::rucksack;
 use super::cleaning;
+use super::rock_paper_scissors::{self as rps, ParseMode};
+use super::rucksack;
 
 pub fn one() {
     let elf_calories = calories::highest_total_calories_from_file("resources/01_elf_calories.txt");
@@ -40,6 +40,11 @@ pub fn three() {
 }
 
 pub fn four() {
-    let count = cleaning::get_count_of_overlapping_pairs("resources/04_cleaning_pairs.txt");
-    println!("Part 1: number of overlapping cleaning pairs = {count}");
+    let pairs = cleaning::get_cleaning_pairs("resources/04_cleaning_pairs.txt");
+
+    let count = cleaning::get_count_of_fully_overlapping_pairs(&pairs);
+    println!("Part 1: number of fully overlapping cleaning pairs = {count}");
+
+    let count = cleaning::get_count_of_all_overlapping_pairs(&pairs);
+    println!("Part 2: number of all overlapping cleaning pairs = {count}");
 }
