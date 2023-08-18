@@ -106,14 +106,14 @@ mod tests {
     #[test]
     fn test_get_count_of_fully_overlapping_pairs() {
         let pairs = get_cleaning_pairs("resources/test/04_cleaning_pairs.txt");
-        let count = get_count_of_fully_overlapping_pairs(pairs);
+        let count = get_count_of_fully_overlapping_pairs(&pairs);
         assert_eq!(2, count);
     }
 
     #[test]
     fn test_get_count_of_overlapping_pairs() {
         let pairs = get_cleaning_pairs("resources/test/04_cleaning_pairs.txt");
-        let count = get_count_of_all_overlapping_pairs(pairs);
+        let count = get_count_of_all_overlapping_pairs(&pairs);
         assert_eq!(4, count);
     }
 }
