@@ -101,6 +101,7 @@ fn get_common_char(str_vec: Vec<&str>) -> Option<char> {
 
 //
 //
+//
 #[cfg(test)]
 mod tests {
     use super::priority::*;

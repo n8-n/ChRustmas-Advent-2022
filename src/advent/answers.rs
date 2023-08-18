@@ -1,6 +1,6 @@
 use super::calories;
-use super::rock_paper_scissors as rps;
-use super::rock_paper_scissors::ParseMode;
+use super::cleaning;
+use super::rock_paper_scissors::{self as rps, ParseMode};
 use super::rucksack;
 
 pub fn one() {
@@ -33,8 +33,18 @@ pub fn three() {
     let rucksacks = rucksack::get_rucksacks_from_file("resources/03_rucksack.txt");
 
     let priority_sum = rucksack::get_sum_of_priorities_for_common_items(&rucksacks);
-    println!("Part 1: Sum of priorities for items is {priority_sum}");
+    println!("Part 1: Sum of priorities for items = {priority_sum}");
 
     let group_sum = rucksack::get_sum_of_priorities_for_group(&rucksacks);
-    println!("Part 2: Sum of priorities for group items is {group_sum}");
+    println!("Part 2: Sum of priorities for group items = {group_sum}");
+}
+
+pub fn four() {
+    let pairs = cleaning::get_cleaning_pairs("resources/04_cleaning_pairs.txt");
+
+    let count = cleaning::get_count_of_fully_overlapping_pairs(&pairs);
+    println!("Part 1: number of fully overlapping cleaning pairs = {count}");
+
+    let count = cleaning::get_count_of_all_overlapping_pairs(&pairs);
+    println!("Part 2: number of all overlapping cleaning pairs = {count}");
 }
