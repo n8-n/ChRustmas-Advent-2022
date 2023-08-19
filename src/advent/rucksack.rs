@@ -1,4 +1,4 @@
-use super::io;
+use crate::util::io;
 
 pub fn get_sum_of_priorities_for_common_items(rucksacks: &Vec<Rucksack>) -> usize {
     rucksacks.iter().fold(0, |acc, rs: &Rucksack| -> usize {
@@ -14,7 +14,7 @@ pub fn get_sum_of_priorities_for_group(rucksacks: &Vec<Rucksack>) -> usize {
 }
 
 pub fn get_rucksacks_from_file(filename: &str) -> Vec<Rucksack> {
-    let lines = io::read_file_as_vector(filename);
+    let lines = io::read_file_as_vector(filename).expect("Could not read file");
 
     lines
         .chunks(3)
@@ -45,10 +45,7 @@ mod priority {
     pub fn get_priority(c: char) -> usize {
         let priority = PRIORITIES.iter().position(|&v| v == c);
 
-        match priority {
-            Some(p) => p,
-            None => panic!("Character is not in priority list."),
-        }
+        priority.expect("Character is not in priority list.")
     }
 }
 

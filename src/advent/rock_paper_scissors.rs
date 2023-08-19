@@ -1,7 +1,7 @@
-use super::io;
+use crate::util::io;
 
 pub fn calculate_score_for_file(filename: &str, mode: &ParseMode) -> u32 {
-    let lines = io::read_file_as_vector(filename);
+    let lines = io::read_file_as_vector(filename).expect("Could not read file");
 
     let mut total_score: u32 = 0;
 
