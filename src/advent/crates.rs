@@ -4,12 +4,26 @@ use crate::util::io;
 
 fn read_crate_stack_plan_from_file(filename: &str) {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
+    let (stks, mv_start) = parse_populate_stacks(&lines).expect("Could not parse and populate stacks");
 
+    parse_apply_move_commands(&lines[mv_start..].to_vec(), stks);
+}
+
+fn parse_populate_stacks(lines: &Vec<String>) -> Option<(Stacks, usize)> {
     for (i, l) in lines.iter().enumerate() {
         if l.is_empty() {
             println!("Crate config finished at line {i}");
+            let stks = Stacks::populate_stacks(lines[0..i].to_vec());
+            
+            return Some((stks, i + 1));
         }
     }
+
+    return None;
+}
+
+fn parse_apply_move_commands(lines: &Vec<String>, stks: Stacks) {
+    // TODO
 }
 
 
@@ -18,7 +32,7 @@ struct Stacks {
     stacks: Vec<Vec<char>>
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 struct Move {
     n: u8,
     from: usize,
@@ -40,12 +54,14 @@ impl Stacks {
         Stacks{ stacks: sts }
     }
 
-    // fn populate_stacks(lines: Vec<String>) -> Stacks {
-        // let stk_num = lines.get(0).unwrap().chunks(3)
-        // let stks = Stacks::new(num)
+    fn populate_stacks(lines: Vec<String>) -> Stacks {
+        let stk_num = lines[0].len() / 4;   // four spaces for each crate in file
+        let stks = Stacks::new(stk_num);
 
-        // need to split into chunks of 4 characters
-    // }
+        // TODO: parse lines and populate stack
+        
+        stks
+    }
 
     fn pop_from(&mut self, num: usize) -> char {
         let stk = self.stacks.get_mut(num).expect("No stack at index");
@@ -63,6 +79,21 @@ impl Stacks {
         for _ in 1..=crate_move.n {
             let c = self.pop_from(crate_move.from);
             self.push_to(crate_move.to, c)
+        }
+    }
+}
+
+impl Move {
+    fn from_line(l: &str) -> Move {
+        // Example expected format: "move 1 from 2 to 1"
+        let m: Vec<&str> = l.split(' ').collect();
+        let parse = |n: &str| -> usize { n.parse().expect("Cannot parse to int") };
+
+        // Minus 1 from location numbers to account for vector indexes starting at 0
+        Move { 
+            n: parse(m[1]) as u8, 
+            from: parse(m[3]) - 1, 
+            to: parse(m[5]) - 1 
         }
     }
 }
@@ -98,8 +129,16 @@ mod tests {
     }
 
     #[test]
-    fn test_crate_stack_plan() {
-        read_crate_stack_plan_from_file("resources/test/05_crates.txt");
+    fn test_parse_move() {
+        let mv_str = "move 1 from 2 to 1";
+        let mv = Move { n: 1, from: 1, to: 0 };
+        
+        assert_eq!(mv, Move::from_line(mv_str));
     }
+
+    // #[test]
+    // fn test_crate_stack_plan() {
+    //     read_crate_stack_plan_from_file("resources/test/05_crates.txt");
+    // }
 
 }
