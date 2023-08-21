@@ -1,6 +1,7 @@
 use std::iter;
 use std::fmt;
 use crate::util::io;
+use crate::util::str;
 
 fn read_crate_stack_plan_from_file(filename: &str) {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
@@ -13,7 +14,7 @@ fn parse_populate_stacks(lines: &Vec<String>) -> Option<(Stacks, usize)> {
     for (i, l) in lines.iter().enumerate() {
         if l.is_empty() {
             println!("Crate config finished at line {i}");
-            let stks = Stacks::populate_stacks(lines[0..i].to_vec());
+            let stks = Stacks::create_stacks(lines[0..i - 1].to_vec());
             
             return Some((stks, i + 1));
         }
@@ -22,7 +23,7 @@ fn parse_populate_stacks(lines: &Vec<String>) -> Option<(Stacks, usize)> {
     return None;
 }
 
-fn parse_apply_move_commands(lines: &Vec<String>, stks: Stacks) {
+fn parse_apply_move_commands(_lines: &Vec<String>, _stks: Stacks) {
     // TODO
 }
 
@@ -46,6 +47,8 @@ impl fmt::Display for Move {
 }
 
 impl Stacks {
+    const CRATE_SPACES: usize = 4; // four spaces for each crate in line of file
+
     fn new(num: usize) -> Stacks {
         let sts = iter::repeat_with(|| Vec::<char>::new())
             .take(num)
@@ -54,13 +57,27 @@ impl Stacks {
         Stacks{ stacks: sts }
     }
 
-    fn populate_stacks(lines: Vec<String>) -> Stacks {
-        let stk_num = lines[0].len() / 4;   // four spaces for each crate in file
-        let stks = Stacks::new(stk_num);
+    fn create_stacks(lines: Vec<String>) -> Stacks {
+        let line_len = lines[0].len() + 1;  // plus one space to make line divisible by 4
+        let mut stks = Stacks::new(line_len / Stacks::CRATE_SPACES);
 
-        // TODO: parse lines and populate stack
+        for l in lines.iter().rev() {
+            stks.push_line_to_stacks(l);
+        }
         
         stks
+    }
+
+    fn push_line_to_stacks(&mut self, line: &str) {
+        let crate_strs = str::chunk_str(line, Stacks::CRATE_SPACES);
+
+        for (i, s) in crate_strs.iter().enumerate() {
+            // chunk will either be empty or of the form "[X] "
+            if !s.trim().is_empty() {
+                println!("trying to push {} to {}", s, i);
+                self.push_to(i, s.chars().nth(1).unwrap());
+            }
+        }
     }
 
     fn pop_from(&mut self, num: usize) -> char {
@@ -134,6 +151,18 @@ mod tests {
         let mv = Move { n: 1, from: 1, to: 0 };
         
         assert_eq!(mv, Move::from_line(mv_str));
+    }
+
+    #[test]
+    fn test_create_stacks() {
+        let lines = vec!["    [D]    ".to_string(), "[N] [C]    ".into(), "[Z] [M] [P]".into()];
+        let stks = Stacks::create_stacks(lines);
+        let stk_vec = stks.stacks;
+
+        assert_eq!(3, stk_vec.len());
+        assert_eq!(vec!['Z', 'N'], *stk_vec.get(0).unwrap());
+        assert_eq!(vec!['M', 'C', 'D'], *stk_vec.get(1).unwrap());
+        assert_eq!(vec!['P'], *stk_vec.get(2).unwrap());
     }
 
     // #[test]
