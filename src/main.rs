@@ -40,6 +40,7 @@ fn run_fn_for_exercise(n: u8) {
         2 => answers::two(),
         3 => answers::three(),
         4 => answers::four(),
+        5 => answers::five(),
         _ => println!("Exercise not yet implemented."),
     }
 }

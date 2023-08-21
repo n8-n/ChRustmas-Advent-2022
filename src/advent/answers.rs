@@ -2,6 +2,7 @@ use super::calories;
 use super::cleaning;
 use super::rock_paper_scissors::{self as rps, ParseMode};
 use super::rucksack;
+use super::crates;
 
 pub fn one() {
     let elf_calories = calories::highest_total_calories_from_file("resources/01_elf_calories.txt");
@@ -47,4 +48,9 @@ pub fn four() {
 
     let count = cleaning::get_count_of_all_overlapping_pairs(&pairs);
     println!("Part 2: number of all overlapping cleaning pairs = {count}");
+}
+
+pub fn five() {
+    let top_crates = crates::process_crate_plan_from_file("resources/05_crates.txt");
+    println!("Part 1: Top crates are {top_crates}");
 }

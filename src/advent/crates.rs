@@ -3,11 +3,13 @@ use std::fmt;
 use crate::util::io;
 use crate::util::str;
 
-fn read_crate_stack_plan_from_file(filename: &str) {
+pub fn process_crate_plan_from_file(filename: &str) -> String {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
-    let (stks, mv_start) = parse_populate_stacks(&lines).expect("Could not parse and populate stacks");
+    let (mut stks, mv_start) = parse_populate_stacks(&lines).expect("Could not parse and populate stacks");
 
-    parse_apply_move_commands(&lines[mv_start..].to_vec(), stks);
+    parse_apply_move_commands(&lines[mv_start..].to_vec(), &mut stks);
+
+    stks.get_top_of_stacks()
 }
 
 fn parse_populate_stacks(lines: &Vec<String>) -> Option<(Stacks, usize)> {
@@ -20,11 +22,14 @@ fn parse_populate_stacks(lines: &Vec<String>) -> Option<(Stacks, usize)> {
         }
     }
 
-    return None;
+    None
 }
 
-fn parse_apply_move_commands(_lines: &Vec<String>, _stks: Stacks) {
-    // TODO
+fn parse_apply_move_commands(lines: &Vec<String>, stks: &mut Stacks) {
+    for l in lines {
+        let mv = Move::from_line(l);
+        stks.move_crates(&mv);
+    }
 }
 
 
@@ -98,6 +103,21 @@ impl Stacks {
             self.push_to(crate_move.to, c)
         }
     }
+
+    fn get_top_of_stacks(&self) -> String {
+        let mut tops = Vec::<char>::new();
+
+        for stk in &self.stacks {
+            let top = stk.last().cloned();
+
+            match top {
+                Some(c) => tops.push(c),
+                None => continue
+            }
+        }
+
+        tops.iter().collect()
+    }
 }
 
 impl Move {
@@ -122,8 +142,7 @@ impl Move {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_move_crates() {
+    fn test_stacks() -> Stacks {
         let mut st = Stacks::new(2);
         let s1 = st.stacks.get_mut(0).unwrap();
         s1.push('A');
@@ -132,6 +151,13 @@ mod tests {
 
         let s2 = st.stacks.get_mut(1).unwrap();
         s2.push('B');
+
+        st
+    }
+
+    #[test]
+    fn test_move_crates() {
+        let mut st = test_stacks();
 
         // Before move
         assert_eq!(vec!['A', 'C', 'C'], *st.stacks.get(0).unwrap());
@@ -165,9 +191,18 @@ mod tests {
         assert_eq!(vec!['P'], *stk_vec.get(2).unwrap());
     }
 
-    // #[test]
-    // fn test_crate_stack_plan() {
-    //     read_crate_stack_plan_from_file("resources/test/05_crates.txt");
-    // }
+    #[test]
+    fn test_get_tops() {
+        let st = test_stacks();
+        let tops = st.get_top_of_stacks();
+
+        assert_eq!("CB".to_string(), tops);
+    }
+
+    #[test]
+    fn test_process_crate_plan_from_file() {
+        let top_crates = process_crate_plan_from_file("resources/test/05_crates.txt");
+        assert_eq!("CMZ", top_crates);
+    }
 
 }
