@@ -3,6 +3,7 @@ use super::cleaning;
 use super::rock_paper_scissors::{self as rps, ParseMode};
 use super::rucksack;
 use super::supply_crates::{self, Crane};
+use super::datastream;
 
 pub fn one() {
     let elf_calories = calories::highest_total_calories_from_file("resources/01_elf_calories.txt");
@@ -44,10 +45,10 @@ pub fn four() {
     let pairs = cleaning::get_cleaning_pairs("resources/04_cleaning_pairs.txt");
 
     let count = cleaning::get_count_of_fully_overlapping_pairs(&pairs);
-    println!("Part 1: number of fully overlapping cleaning pairs = {count}");
+    println!("Part 1: Number of fully overlapping cleaning pairs = {count}");
 
     let count = cleaning::get_count_of_all_overlapping_pairs(&pairs);
-    println!("Part 2: number of all overlapping cleaning pairs = {count}");
+    println!("Part 2: Number of all overlapping cleaning pairs = {count}");
 }
 
 pub fn five() {
@@ -58,4 +59,9 @@ pub fn five() {
     let top_crates =
         supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt", Crane::CM9001);
     println!("Part 2: Top crates are {top_crates}");
+}
+
+pub fn six() {
+    let index = datastream::get_marker_end_index_from_file("resources/06_datastream.txt");
+    println!("Part 1: Index of the end of the marker is {index}");
 }

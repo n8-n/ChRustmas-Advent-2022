@@ -126,7 +126,7 @@ impl Supplies {
                 }
                 chars.reverse();
                 self.push_multiple(crate_move.to, chars);
-            },
+            }
         }
     }
 
