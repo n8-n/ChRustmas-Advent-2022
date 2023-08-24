@@ -1,7 +1,8 @@
 pub fn chunk_string(string: &str, chunk_size: usize) -> Vec<String> {
     let chars: Vec<char> = string.chars().collect();
 
-    return chars.chunks(chunk_size)
+    return chars
+        .chunks(chunk_size)
         .map(|chunk| chunk.iter().collect::<String>())
         .collect::<Vec<_>>();
 }
@@ -25,5 +26,4 @@ mod tests {
         let expected_values: Vec<String> = vec!["abcd".to_string(), "efgh".into(), "i".into()];
         assert_eq!(expected_values, res);
     }
-
 }
