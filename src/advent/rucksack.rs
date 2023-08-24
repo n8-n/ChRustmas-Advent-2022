@@ -57,8 +57,8 @@ pub struct Rucksack {
 }
 
 impl Rucksack {
-    fn from_string(s: &str) -> Rucksack {
-        let (first, second) = s.split_at(s.len() / 2);
+    fn from_string(line: &str) -> Rucksack {
+        let (first, second) = line.split_at(line.len() / 2);
 
         Rucksack {
             compartments: (first.to_string(), second.to_string()),

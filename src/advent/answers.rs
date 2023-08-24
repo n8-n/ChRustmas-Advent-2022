@@ -2,7 +2,7 @@ use super::calories;
 use super::cleaning;
 use super::rock_paper_scissors::{self as rps, ParseMode};
 use super::rucksack;
-use super::crates;
+use super::supply_crates;
 
 pub fn one() {
     let elf_calories = calories::highest_total_calories_from_file("resources/01_elf_calories.txt");
@@ -51,6 +51,6 @@ pub fn four() {
 }
 
 pub fn five() {
-    let top_crates = crates::process_crate_plan_from_file("resources/05_crates.txt");
+    let top_crates = supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt");
     println!("Part 1: Top crates are {top_crates}");
 }
