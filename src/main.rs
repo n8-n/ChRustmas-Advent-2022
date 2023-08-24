@@ -4,8 +4,15 @@ use advent::answers;
 use std::io;
 
 mod advent;
+mod common;
 
 fn main() {
+    loop {
+        prompt_user_for_choice();
+    }
+}
+
+fn prompt_user_for_choice() {
     println!("Which exercise answer would you like? [1-25]");
 
     let mut choice = String::new();
@@ -23,6 +30,8 @@ fn main() {
     } else {
         run_fn_for_exercise(choice);
     }
+
+    print!("\n");
 }
 
 fn run_fn_for_exercise(n: u8) {
@@ -31,6 +40,7 @@ fn run_fn_for_exercise(n: u8) {
         2 => answers::two(),
         3 => answers::three(),
         4 => answers::four(),
+        5 => answers::five(),
         _ => println!("Exercise not yet implemented."),
     }
 }

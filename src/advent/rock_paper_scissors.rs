@@ -1,7 +1,7 @@
-use super::io;
+use crate::common::io;
 
-pub fn calculate_score_for_file(filename: &str, mode: &ParseMode) -> u32 {
-    let lines = io::read_file_as_vector(filename);
+pub fn calculate_score_for_file(filename: &str, mode: ParseMode) -> u32 {
+    let lines = io::read_file_as_vector(filename).expect("Could not read file");
 
     let mut total_score: u32 = 0;
 
@@ -197,10 +197,10 @@ mod tests {
     fn test_sum_scores() {
         let filename = "resources/test/02_rps.txt";
 
-        let result = calculate_score_for_file(filename, &ParseMode::Choice);
+        let result = calculate_score_for_file(filename, ParseMode::Choice);
         assert_eq!(15, result);
 
-        let result = calculate_score_for_file(filename, &ParseMode::Result);
+        let result = calculate_score_for_file(filename, ParseMode::Result);
         assert_eq!(12, result);
     }
 }

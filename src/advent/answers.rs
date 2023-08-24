@@ -2,6 +2,7 @@ use super::calories;
 use super::cleaning;
 use super::rock_paper_scissors::{self as rps, ParseMode};
 use super::rucksack;
+use super::supply_crates::{self, Crane};
 
 pub fn one() {
     let elf_calories = calories::highest_total_calories_from_file("resources/01_elf_calories.txt");
@@ -22,10 +23,10 @@ pub fn one() {
 
 pub fn two() {
     let filename = "resources/02_rock_paper_scissors.txt";
-    let rps_score_total = rps::calculate_score_for_file(filename, &ParseMode::Choice);
+    let rps_score_total = rps::calculate_score_for_file(filename, ParseMode::Choice);
     println!("Part 1: Total score for Rock Paper Scissors = {rps_score_total}");
 
-    let rps_score_total = rps::calculate_score_for_file(filename, &ParseMode::Result);
+    let rps_score_total = rps::calculate_score_for_file(filename, ParseMode::Result);
     println!("Part 2: Total score for Rock Paper Scissors = {rps_score_total}");
 }
 
@@ -47,4 +48,14 @@ pub fn four() {
 
     let count = cleaning::get_count_of_all_overlapping_pairs(&pairs);
     println!("Part 2: number of all overlapping cleaning pairs = {count}");
+}
+
+pub fn five() {
+    let top_crates =
+        supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt", Crane::CM9000);
+    println!("Part 1: Top crates are {top_crates}");
+
+    let top_crates =
+        supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt", Crane::CM9001);
+    println!("Part 2: Top crates are {top_crates}");
 }
