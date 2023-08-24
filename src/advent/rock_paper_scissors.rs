@@ -1,4 +1,4 @@
-use crate::util::io;
+use crate::common::io;
 
 pub fn calculate_score_for_file(filename: &str, mode: &ParseMode) -> u32 {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");

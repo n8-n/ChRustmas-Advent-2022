@@ -1,4 +1,4 @@
-use crate::util::io;
+use crate::common::io;
 
 pub fn get_sum_of_priorities_for_common_items(rucksacks: &Vec<Rucksack>) -> usize {
     rucksacks.iter().fold(0, |acc, rs: &Rucksack| -> usize {

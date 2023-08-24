@@ -4,7 +4,7 @@ use advent::answers;
 use std::io;
 
 mod advent;
-mod util;
+mod common;
 
 fn main() {
     loop {

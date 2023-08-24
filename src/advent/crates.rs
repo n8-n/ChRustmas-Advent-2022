@@ -1,7 +1,7 @@
 use std::iter;
 use std::fmt;
-use crate::util::io;
-use crate::util::str;
+use crate::common::io;
+use crate::common::str;
 
 pub fn process_crate_plan_from_file(filename: &str) -> String {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");

@@ -1,4 +1,4 @@
-use crate::util::io;
+use crate::common::io;
 
 pub fn get_cleaning_pairs(filename: &str) -> Vec<CleaningPair> {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");

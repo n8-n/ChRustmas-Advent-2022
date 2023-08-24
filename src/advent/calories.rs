@@ -1,4 +1,4 @@
-use crate::util::io;
+use crate::common::io;
 
 pub fn highest_total_calories_from_file(filename: &str) -> Vec<u32> {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
