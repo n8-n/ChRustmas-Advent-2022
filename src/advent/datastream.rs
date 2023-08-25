@@ -15,11 +15,7 @@ fn find_end_index_of_packet_start_marker(datastream: &str) -> Option<u16> {
 
     let mut chars = datastream.chars();
     let mut window = Window {
-        previous_chars: (
-            chars.next()?,
-            chars.next()?,
-            chars.next()?,
-        ),
+        previous_chars: (chars.next()?, chars.next()?, chars.next()?),
     };
 
     // println!("{:?}", window);

@@ -1,9 +1,9 @@
 use super::calories;
 use super::cleaning;
+use super::datastream;
 use super::rock_paper_scissors::{self as rps, ParseMode};
 use super::rucksack;
 use super::supply_crates::{self, Crane};
-use super::datastream;
 
 pub fn one() {
     let elf_calories = calories::highest_total_calories_from_file("resources/01_elf_calories.txt");

@@ -51,7 +51,6 @@ mod priority {
 
 #[derive(Debug)]
 pub struct Rucksack {
-    compartments: (String, String),
     common_item: char,
     group_common: Option<char>,
 }
@@ -61,7 +60,6 @@ impl Rucksack {
         let (first, second) = line.split_at(line.len() / 2);
 
         Rucksack {
-            compartments: (first.to_string(), second.to_string()),
             common_item: get_common_char(vec![&first, &second]).unwrap(),
             group_common: None,
         }
@@ -126,10 +124,6 @@ mod tests {
         let s = "PmmdzqPrVvPwwTWBwg";
         let rs = Rucksack::from_string(s);
 
-        assert_eq!(
-            ("PmmdzqPrV".to_string(), "vPwwTWBwg".to_string()),
-            rs.compartments
-        );
         assert_eq!('P', rs.common_item);
         assert_eq!(42, rs.common_item_value());
     }
