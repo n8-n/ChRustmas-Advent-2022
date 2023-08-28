@@ -1,62 +1,39 @@
 use crate::common::io;
+use std::collections::{VecDeque, HashSet};
 
-const INITIAL_WINDOW_LEN: usize = 3;
 
-pub fn get_marker_end_index_from_file(filename: &str) -> u16 {
-    let lines = io::read_file_as_vector(filename).expect("Could not read file");
+pub fn get_marker_end_index_from_file(filename: &str, marker_size: usize) -> u16 {
+    let mut lines = io::read_file_as_vector(filename).expect("Could not read file");
 
-    find_end_index_of_packet_start_marker(&lines[0]).expect("Could not find index")
+    find_end_index_of_packet_start_marker(lines.get_mut(0).unwrap(), marker_size)
+        .expect("Could not find index")
 }
 
-fn find_end_index_of_packet_start_marker(datastream: &str) -> Option<u16> {
-    if datastream.len() <= INITIAL_WINDOW_LEN {
+fn find_end_index_of_packet_start_marker(datastream: &mut String, marker_size: usize) -> Option<u16> {
+    if datastream.len() < marker_size {
         return None;
     }
 
-    let mut chars = datastream.chars();
-    let mut window = Window {
-        previous_chars: (chars.next()?, chars.next()?, chars.next()?),
-    };
+    let (initial, rest) = datastream.split_at_mut(marker_size);
+    let mut previous_chars: VecDeque<char> = VecDeque::from(initial.chars().collect::<Vec<char>>());
 
-    // println!("{:?}", window);
-
-    for (i, c) in chars.into_iter().enumerate() {
-        // println!("{i}, {c}");
-
-        if window.are_previous_chars_unique() && window.is_end_of_marker(c) {
-            let index = (i + 1 + INITIAL_WINDOW_LEN) as u16;
+    for (i, c) in rest.chars().into_iter().enumerate() {
+        if are_chars_unique(&previous_chars) {
+            let index = (i + marker_size) as u16;
             return Some(index);
         } else {
-            window.update(c);
+            let _ = previous_chars.pop_front();
+            previous_chars.push_back(c);
         }
     }
-
+    
     None
 }
 
-#[derive(Debug)]
-struct Window {
-    previous_chars: (char, char, char),
-}
+fn are_chars_unique(previous_chars: &VecDeque<char>) -> bool {
+    let hash_of_chars: HashSet<char> = HashSet::from_iter(previous_chars.iter().cloned());
 
-impl Window {
-    fn is_end_of_marker(&self, new_c: char) -> bool {
-        !(new_c == self.previous_chars.0)
-            && !(new_c == self.previous_chars.1)
-            && !(new_c == self.previous_chars.2)
-    }
-
-    fn are_previous_chars_unique(&self) -> bool {
-        !(self.previous_chars.0 == self.previous_chars.1)
-            && !(self.previous_chars.0 == self.previous_chars.2)
-            && !(self.previous_chars.1 == self.previous_chars.2)
-    }
-
-    fn update(&mut self, new_c: char) {
-        self.previous_chars.0 = self.previous_chars.1;
-        self.previous_chars.1 = self.previous_chars.2;
-        self.previous_chars.2 = new_c;
-    }
+    hash_of_chars.len() == previous_chars.len()
 }
 
 //
@@ -68,13 +45,24 @@ mod tests {
 
     #[test]
     fn test_find_end_index() {
-        let result = find_end_index_of_packet_start_marker("bvwbjplbgvbhsrlpgdmjqwftvncz");
+        let marker_size = 4;
+        let result = find_end_index_of_packet_start_marker(&mut "bvwbjplbgvbhsrlpgdmjqwftvncz".to_string(), marker_size);
         assert_eq!(5, result.unwrap());
 
-        let result = find_end_index_of_packet_start_marker("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg");
+        let result = find_end_index_of_packet_start_marker(&mut "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg".to_string(), marker_size);
         assert_eq!(10, result.unwrap());
 
-        let result = find_end_index_of_packet_start_marker("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw");
+        let result = find_end_index_of_packet_start_marker(&mut "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw".to_string(), marker_size);
         assert_eq!(11, result.unwrap());
     }
+
+    #[test]
+    fn test_are_chars_unique() {
+        let queue: VecDeque<char> = VecDeque::from(['a', 'b', 'a', 'c']);
+        assert!(!are_chars_unique(&queue));
+
+        let queue: VecDeque<char> = VecDeque::from(['a', 'b', 'x', 'c']);
+        assert!(are_chars_unique(&queue));
+    }
+
 }

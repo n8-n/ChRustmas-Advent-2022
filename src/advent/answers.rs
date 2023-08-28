@@ -62,6 +62,9 @@ pub fn five() {
 }
 
 pub fn six() {
-    let index = datastream::get_marker_end_index_from_file("resources/06_datastream.txt");
+    let index = datastream::get_marker_end_index_from_file("resources/06_datastream.txt", 4);
     println!("Part 1: Index of the end of the marker is {index}");
+
+    let index = datastream::get_marker_end_index_from_file("resources/06_datastream.txt", 14);
+    println!("Part 2: Index of the end of the marker is {index}");
 }
