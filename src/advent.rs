@@ -1,6 +1,49 @@
+use std::{error::Error, io, process};
+
 pub mod answers;
 mod calories;
 mod cleaning;
+mod datastream;
 mod rock_paper_scissors;
 mod rucksack;
 mod supply_crates;
+
+pub fn run() {
+    loop {
+        if let Err(e) = prompt_user_for_choice() {
+            eprintln!("Application error: {}", e);
+            process::exit(1);
+        }
+    }
+}
+
+fn prompt_user_for_choice() -> Result<(), Box<dyn Error>> {
+    println!("Which exercise answer would you like? [1-25]");
+
+    let mut choice = String::new();
+    io::stdin().read_line(&mut choice)?;
+
+    let choice: u8 = choice.trim().parse()?;
+
+    if choice < 1 || choice > 25 {
+        println!("Not a valid exercise number. Should be 1-25.");
+    } else {
+        run_fn_for_exercise(choice);
+    }
+
+    print!("\n");
+    
+    Ok(())
+}
+
+fn run_fn_for_exercise(n: u8) {
+    match n {
+        1 => answers::one(),
+        2 => answers::two(),
+        3 => answers::three(),
+        4 => answers::four(),
+        5 => answers::five(),
+        6 => answers::six(),
+        _ => println!("Exercise not yet implemented."),
+    }
+}
