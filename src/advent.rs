@@ -7,6 +7,7 @@ mod datastream;
 mod rock_paper_scissors;
 mod rucksack;
 mod supply_crates;
+mod directories;
 
 pub fn run() {
     loop {
@@ -44,6 +45,7 @@ fn run_fn_for_exercise(n: u8) {
         4 => answers::four(),
         5 => answers::five(),
         6 => answers::six(),
+        7 => answers::seven(),
         _ => println!("Exercise not yet implemented."),
     }
 }
