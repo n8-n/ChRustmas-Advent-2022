@@ -1,6 +1,5 @@
 use crate::common::io;
-use std::collections::{VecDeque, HashSet};
-
+use std::collections::{HashSet, VecDeque};
 
 pub fn get_marker_end_index_from_file(filename: &str, marker_size: usize) -> u16 {
     let mut lines = io::read_file_as_vector(filename).expect("Could not read file");
@@ -9,7 +8,10 @@ pub fn get_marker_end_index_from_file(filename: &str, marker_size: usize) -> u16
         .expect("Could not find index")
 }
 
-fn find_end_index_of_packet_start_marker(datastream: &mut String, marker_size: usize) -> Option<u16> {
+fn find_end_index_of_packet_start_marker(
+    datastream: &mut String,
+    marker_size: usize,
+) -> Option<u16> {
     if datastream.len() < marker_size {
         return None;
     }
@@ -26,7 +28,7 @@ fn find_end_index_of_packet_start_marker(datastream: &mut String, marker_size: u
             previous_chars.push_back(c);
         }
     }
-    
+
     None
 }
 
@@ -46,13 +48,22 @@ mod tests {
     #[test]
     fn test_find_end_index() {
         let marker_size = 4;
-        let result = find_end_index_of_packet_start_marker(&mut "bvwbjplbgvbhsrlpgdmjqwftvncz".to_string(), marker_size);
+        let result = find_end_index_of_packet_start_marker(
+            &mut "bvwbjplbgvbhsrlpgdmjqwftvncz".to_string(),
+            marker_size,
+        );
         assert_eq!(5, result.unwrap());
 
-        let result = find_end_index_of_packet_start_marker(&mut "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg".to_string(), marker_size);
+        let result = find_end_index_of_packet_start_marker(
+            &mut "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg".to_string(),
+            marker_size,
+        );
         assert_eq!(10, result.unwrap());
 
-        let result = find_end_index_of_packet_start_marker(&mut "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw".to_string(), marker_size);
+        let result = find_end_index_of_packet_start_marker(
+            &mut "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw".to_string(),
+            marker_size,
+        );
         assert_eq!(11, result.unwrap());
     }
 
@@ -64,5 +75,4 @@ mod tests {
         let queue: VecDeque<char> = VecDeque::from(['a', 'b', 'x', 'c']);
         assert!(are_chars_unique(&queue));
     }
-
 }

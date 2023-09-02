@@ -4,10 +4,10 @@ pub mod answers;
 mod calories;
 mod cleaning;
 mod datastream;
+mod directories;
 mod rock_paper_scissors;
 mod rucksack;
 mod supply_crates;
-mod directories;
 
 pub fn run() {
     loop {
@@ -33,7 +33,7 @@ fn prompt_user_for_choice() -> Result<(), Box<dyn Error>> {
     }
 
     print!("\n");
-    
+
     Ok(())
 }
 
