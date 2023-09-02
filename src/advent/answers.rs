@@ -1,6 +1,7 @@
 use super::calories;
 use super::cleaning;
 use super::datastream;
+use super::directories;
 use super::rock_paper_scissors::{self as rps, ParseMode};
 use super::rucksack;
 use super::supply_crates::{self, Crane};
@@ -70,5 +71,6 @@ pub fn six() {
 }
 
 pub fn seven() {
-    println!("Part 1: Sum of directory sizes is {}", 1);
+    let sum = directories::get_sum_or_large_directories("resources/07_directories.txt");
+    println!("Part 1: Sum of directory sizes is {}", sum);
 }
