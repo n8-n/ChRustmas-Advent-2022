@@ -1,9 +1,10 @@
-use std::{collections::HashMap, hash::Hash};
-
+use std::collections::HashMap;
 use crate::common::io;
 use slab_tree::*;
 
-pub fn get_sum_or_large_directories(filename: &str) -> usize {
+const SIZE_LIMIT: usize = 100000;
+
+pub fn get_sum_of_large_directories(filename: &str) -> usize {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
 
     let mut directory_tree: Tree<File> = init_tree();
@@ -18,15 +19,15 @@ pub fn get_sum_or_large_directories(filename: &str) -> usize {
     });
 
     let dir_sizes = get_size_of_dirs(&directory_tree);
-    println!("{:?}", dir_sizes);
 
     dir_sizes.values().fold(0, |total, size| {
-        total + (if *size <= 100000 { *size } else { 0 })
+        total + (if *size <= SIZE_LIMIT { *size } else { 0 })
     })
 }
 
 fn parse_line_add_to_tree(line: &str, tree_info: TreeInfo) -> NodeId {
     let tokens = line.split(" ").collect::<Vec<_>>();
+    let current_node_id = *tree_info.current_node_id;
 
     match tokens[0] {
         "$" => {
@@ -34,23 +35,25 @@ fn parse_line_add_to_tree(line: &str, tree_info: TreeInfo) -> NodeId {
             if command == "cd" {
                 let location = tokens[2];
                 if location == ".." {
-                    get_parent_node_id(tree_info)
+                    return get_parent_node_id(tree_info);
                 } else {
-                    create_child_node(location, FileType::Directory, tree_info)
+                    return create_node_if_not_exist(location, FileType::Directory, tree_info);
                 }
-            } else {
-                *tree_info.current_node_id
             }
         }
-        "dir" => create_child_node(tokens[1], FileType::Directory, tree_info),
+        "dir" => {
+            create_node_if_not_exist(tokens[1], FileType::Directory, tree_info);
+        }
         _ => {
             let size = tokens[0].parse().expect("Should parse int");
-            create_child_node(tokens[1], FileType::DataFile(size), tree_info)
+            create_node_if_not_exist(tokens[1], FileType::DataFile(size), tree_info);
         }
     }
+
+    current_node_id
 }
 
-fn create_child_node(name: &str, file_type: FileType, tree_info: TreeInfo) -> NodeId {
+fn create_node_if_not_exist(name: &str, file_type: FileType, tree_info: TreeInfo) -> NodeId {
     let current_node = tree_info
         .tree
         .get(*tree_info.current_node_id)
@@ -91,19 +94,20 @@ fn init_tree() -> Tree<File> {
     TreeBuilder::new().with_root(root_file).build()
 }
 
-fn get_size_of_dirs(tree: &Tree<File>) -> HashMap<String, usize> {
+fn get_size_of_dirs(tree: &Tree<File>) -> HashMap<DirId, usize> {
     let mut sizes = HashMap::new();
 
     tree.root()
         .expect("Should not be empty")
         .traverse_post_order()
-        .for_each(|node| -> () {
+        .for_each(|node| {
             let file = node.data();
             match file.file_type {
                 FileType::DataFile(_) => (),
                 FileType::Directory => {
+                    let id = DirId::new(file.name.to_string(), node.node_id());
                     let size = sum_files_in_dir(node, &sizes);
-                    sizes.insert(file.name.to_string(), size);
+                    sizes.insert(id, size);
                 }
             }
         });
@@ -111,13 +115,14 @@ fn get_size_of_dirs(tree: &Tree<File>) -> HashMap<String, usize> {
     sizes
 }
 
-fn sum_files_in_dir(dir_node: NodeRef<File>, dir_sizes: &HashMap<String, usize>) -> usize {
+fn sum_files_in_dir(dir_node: NodeRef<File>, dir_sizes: &HashMap<DirId, usize>) -> usize {
     dir_node
         .children()
         .fold(0, |total, file| match file.data().file_type {
             FileType::DataFile(size) => total + size,
             FileType::Directory => {
-                let child_dir_size = dir_sizes.get(&file.data().name).unwrap_or(&0);
+                let id = DirId::new(file.data().name.to_string(), file.node_id());
+                let child_dir_size = dir_sizes.get(&id).unwrap_or(&0);
                 total + *child_dir_size
             }
         })
@@ -140,105 +145,67 @@ enum FileType {
     DataFile(usize),
 }
 
-//
-//
-//
-#[rustfmt::skip]
-#[cfg(test)]
-#[test]
-fn test_create_child_node() {
-    let mut directory_tree: Tree<File> = init_tree();
-    let root_id = &directory_tree.root_id().unwrap();
-    
-    // first time create new file node, second time skip
-    for _ in 1..=2 {
-        let tree_info = TreeInfo {current_node_id: root_id, tree: &mut directory_tree};
-        let new_node_id = create_child_node("test1", FileType::Directory, tree_info);
-        let root_children: Vec<_> = directory_tree.root().unwrap().children().collect();
+#[derive(Debug, PartialEq, Eq, Hash)]
+struct DirId {
+    name: String,
+    id: NodeId
+}
 
-        assert_eq!(1, root_children.len());
-        assert_eq!(new_node_id, root_children[0].node_id());
+impl DirId {
+    fn new(name: String, id: NodeId) -> DirId {
+        DirId {
+            name, id
+        }
     }
 }
 
-#[test]
-fn test_parse_lines_to_tree() {
-    let mut directory_tree: Tree<File> = init_tree();
-    let root_id = &directory_tree.root_id().unwrap();
+//
+//
+//
+#[cfg(test)]
+#[rustfmt::skip]
+mod tests {
+    use super::*;
 
-    let tree_info = TreeInfo {
-        current_node_id: root_id,
-        tree: &mut directory_tree,
-    };
-    let result = parse_line_add_to_tree("$ ls", tree_info);
-    assert_eq!(*root_id, result);
+    #[test]
+    fn test_create_child_node() {
+        let mut directory_tree: Tree<File> = init_tree();
+        let root_id = &directory_tree.root_id().unwrap();
+        
+        // first time create new file node, second time skip
+        for _ in 1..=2 {
+            let tree_info = TreeInfo {current_node_id: root_id, tree: &mut directory_tree};
+            let new_node_id = create_node_if_not_exist("test1", FileType::Directory, tree_info);
+            let root_children: Vec<_> = directory_tree.root().unwrap().children().collect();
 
-    let tree_info = TreeInfo {
-        current_node_id: root_id,
-        tree: &mut directory_tree,
-    };
-    let result = parse_line_add_to_tree("$ cd blah", tree_info);
-    assert_eq!(
-        directory_tree
-            .root()
-            .unwrap()
-            .first_child()
-            .unwrap()
-            .node_id(),
-        result
-    );
+            assert_eq!(1, root_children.len());
+            assert_eq!(new_node_id, root_children[0].node_id());
+        }
+    }
 
-    // check same dir
-    let tree_info = TreeInfo {
-        current_node_id: root_id,
-        tree: &mut directory_tree,
-    };
-    let result = parse_line_add_to_tree("dir blah", tree_info);
-    assert_eq!(
-        directory_tree
-            .root()
-            .unwrap()
-            .first_child()
-            .unwrap()
-            .node_id(),
-        result
-    );
+    
+    #[test]
+    fn test_parse_lines_to_tree() {
+        let mut directory_tree: Tree<File> = init_tree();
+        let root_id = &directory_tree.root_id().unwrap();
 
-    let tree_info = TreeInfo {
-        current_node_id: root_id,
-        tree: &mut directory_tree,
-    };
-    let result = parse_line_add_to_tree("2344 tst", tree_info);
-    assert_eq!(
-        directory_tree
-            .root()
-            .unwrap()
-            .last_child()
-            .unwrap()
-            .node_id(),
-        result
-    );
+        let tree_info = TreeInfo { current_node_id: root_id, tree: &mut directory_tree };
+        let result = parse_line_add_to_tree("$ ls", tree_info);
+        assert_eq!(*root_id, result);
 
-    // create child of root child
-    let node_id = result;
-    let tree_info = TreeInfo {
-        current_node_id: &node_id,
-        tree: &mut directory_tree,
-    };
-    let result2 = parse_line_add_to_tree("1111 test2", tree_info);
-    assert_eq!(
-        directory_tree
-            .get(node_id)
-            .unwrap()
-            .first_child()
-            .unwrap()
-            .node_id(),
-        result2
-    );
-}
+        let tree_info = TreeInfo { current_node_id: root_id, tree: &mut directory_tree };
+        let result = parse_line_add_to_tree("$ cd blah", tree_info);
+        assert_eq!(directory_tree.root().unwrap().first_child().unwrap().node_id(), result);
 
-#[test]
-fn test_get_sum_or_large_directories() {
-    let sum = get_sum_or_large_directories("resources/test/07_directories.txt");
-    assert_eq!(95437, sum);
+        let node_id = result;
+        let tree_info = TreeInfo { current_node_id: &node_id, tree: &mut directory_tree };
+        let result = parse_line_add_to_tree("2344 tst", tree_info);
+        assert_eq!(node_id, result);
+    }
+
+    #[test]
+    fn test_get_sum_of_large_directories() {
+        let sum = get_sum_of_large_directories("resources/test/07_directories.txt");
+        assert_eq!(95437, sum);
+    }
 }

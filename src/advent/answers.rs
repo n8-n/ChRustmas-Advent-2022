@@ -71,6 +71,6 @@ pub fn six() {
 }
 
 pub fn seven() {
-    let sum = directories::get_sum_or_large_directories("resources/07_directories.txt");
+    let sum = directories::get_sum_of_large_directories("resources/07_directories.txt");
     println!("Part 1: Sum of directory sizes is {}", sum);
 }
