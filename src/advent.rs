@@ -1,12 +1,13 @@
 use std::{error::Error, io, process};
 
 pub mod answers;
-mod calories;
-mod cleaning;
-mod datastream;
-mod rock_paper_scissors;
-mod rucksack;
-mod supply_crates;
+mod q01_calories;
+mod q02_rock_paper_scissors;
+mod q03_rucksack;
+mod q04_cleaning;
+mod q05_supply_crates;
+mod q06_datastream;
+mod q07_directories;
 
 pub fn run() {
     loop {
@@ -32,7 +33,7 @@ fn prompt_user_for_choice() -> Result<(), Box<dyn Error>> {
     }
 
     print!("\n");
-    
+
     Ok(())
 }
 
@@ -44,6 +45,7 @@ fn run_fn_for_exercise(n: u8) {
         4 => answers::four(),
         5 => answers::five(),
         6 => answers::six(),
+        7 => answers::seven(),
         _ => println!("Exercise not yet implemented."),
     }
 }
