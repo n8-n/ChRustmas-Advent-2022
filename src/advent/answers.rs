@@ -1,13 +1,14 @@
 use super::q01_calories;
-use super::q04_cleaning;
-use super::q06_datastream;
-use super::q07_directories;
 use super::q02_rock_paper_scissors::{self as rps, ParseMode};
 use super::q03_rucksack;
+use super::q04_cleaning;
 use super::q05_supply_crates::{self, Crane};
+use super::q06_datastream;
+use super::q07_directories;
 
 pub fn one() {
-    let elf_calories = q01_calories::highest_total_calories_from_file("resources/01_elf_calories.txt");
+    let elf_calories =
+        q01_calories::highest_total_calories_from_file("resources/01_elf_calories.txt");
 
     let length = elf_calories.len();
 
@@ -53,12 +54,16 @@ pub fn four() {
 }
 
 pub fn five() {
-    let top_crates =
-        q05_supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt", Crane::CM9000);
+    let top_crates = q05_supply_crates::process_supplies_plan_from_file(
+        "resources/05_supplies.txt",
+        Crane::CM9000,
+    );
     println!("Part 1: Top crates are {top_crates}");
 
-    let top_crates =
-        q05_supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt", Crane::CM9001);
+    let top_crates = q05_supply_crates::process_supplies_plan_from_file(
+        "resources/05_supplies.txt",
+        Crane::CM9001,
+    );
     println!("Part 2: Top crates are {top_crates}");
 }
 
@@ -71,6 +76,14 @@ pub fn six() {
 }
 
 pub fn seven() {
-    let sum = q07_directories::get_sum_of_large_directories("resources/07_directories.txt");
+    let dirs = q07_directories::parse_directory_sizes_from_file("resources/07_directories.txt");
+
+    let sum = q07_directories::get_sum_of_large_directories(&dirs);
     println!("Part 1: Sum of directory sizes is {}", sum);
+
+    let size_smallest = q07_directories::get_size_of_smallest_directory_to_delete(&dirs);
+    println!(
+        "Part 2: Size of smallest directory we can delete to free space is {}",
+        size_smallest
+    );
 }

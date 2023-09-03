@@ -2,12 +2,12 @@ use std::{error::Error, io, process};
 
 pub mod answers;
 mod q01_calories;
-mod q04_cleaning;
-mod q06_datastream;
-mod q07_directories;
 mod q02_rock_paper_scissors;
 mod q03_rucksack;
+mod q04_cleaning;
 mod q05_supply_crates;
+mod q06_datastream;
+mod q07_directories;
 
 pub fn run() {
     loop {

@@ -1,10 +1,12 @@
-use std::collections::HashMap;
 use crate::common::io;
 use slab_tree::*;
+use std::collections::HashMap;
 
 const SIZE_LIMIT: usize = 100000;
+const SYSTEM_SIZE: usize = 70000000;
+const REQUIRED_SPACE: usize = 30000000;
 
-pub fn get_sum_of_large_directories(filename: &str) -> usize {
+pub fn parse_directory_sizes_from_file(filename: &str) -> HashMap<DirId, usize> {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
 
     let mut directory_tree: Tree<File> = init_tree();
@@ -18,11 +20,58 @@ pub fn get_sum_of_large_directories(filename: &str) -> usize {
         current_node = parse_line_add_to_tree(line, tree_info)
     });
 
-    let dir_sizes = get_size_of_dirs(&directory_tree);
+    get_size_of_dirs(&directory_tree)
+}
 
+pub fn get_sum_of_large_directories(dir_sizes: &HashMap<DirId, usize>) -> usize {
     dir_sizes.values().fold(0, |total, size| {
         total + (if *size <= SIZE_LIMIT { *size } else { 0 })
     })
+}
+
+pub fn get_size_of_smallest_directory_to_delete(dir_sizes: &HashMap<DirId, usize>) -> usize {
+    let top_level_dir = dir_sizes
+        .iter()
+        .find(|(k, _)| k.name == "/")
+        .expect("Should contain toplevel dir");
+    let unused_space = SYSTEM_SIZE - *top_level_dir.1;
+
+    let result = dir_sizes
+        .values()
+        .filter(|dir_size| (unused_space + **dir_size) >= REQUIRED_SPACE)
+        .min()
+        .expect("Should have a minimum value");
+
+    *result
+}
+
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub struct DirId {
+    name: String,
+    id: NodeId,
+}
+
+impl DirId {
+    fn new(name: String, id: NodeId) -> DirId {
+        DirId { name, id }
+    }
+}
+
+#[derive(Debug)]
+struct File {
+    name: String,
+    file_type: FileType,
+}
+
+#[derive(Debug)]
+enum FileType {
+    Directory,
+    DataFile(usize),
+}
+
+struct TreeInfo<'a> {
+    current_node_id: &'a NodeId,
+    tree: &'a mut Tree<File>,
 }
 
 fn parse_line_add_to_tree(line: &str, tree_info: TreeInfo) -> NodeId {
@@ -128,37 +177,6 @@ fn sum_files_in_dir(dir_node: NodeRef<File>, dir_sizes: &HashMap<DirId, usize>) 
         })
 }
 
-struct TreeInfo<'a> {
-    current_node_id: &'a NodeId,
-    tree: &'a mut Tree<File>,
-}
-
-#[derive(Debug)]
-struct File {
-    name: String,
-    file_type: FileType,
-}
-
-#[derive(Debug)]
-enum FileType {
-    Directory,
-    DataFile(usize),
-}
-
-#[derive(Debug, PartialEq, Eq, Hash)]
-struct DirId {
-    name: String,
-    id: NodeId
-}
-
-impl DirId {
-    fn new(name: String, id: NodeId) -> DirId {
-        DirId {
-            name, id
-        }
-    }
-}
-
 //
 //
 //
@@ -205,7 +223,15 @@ mod tests {
 
     #[test]
     fn test_get_sum_of_large_directories() {
-        let sum = get_sum_of_large_directories("resources/test/07_directories.txt");
+        let dirs = parse_directory_sizes_from_file("resources/test/07_directories.txt");
+        let sum = get_sum_of_large_directories(&dirs);
         assert_eq!(95437, sum);
+    }
+
+    #[test]
+    fn test_get_size_of_smallest_directory() {
+        let dirs = parse_directory_sizes_from_file("resources/test/07_directories.txt");
+        let min = get_size_of_smallest_directory_to_delete(&dirs);
+        assert_eq!(24933642, min);
     }
 }
