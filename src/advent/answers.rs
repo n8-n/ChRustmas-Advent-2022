@@ -1,13 +1,13 @@
-use super::calories;
-use super::cleaning;
-use super::datastream;
-use super::directories;
-use super::rock_paper_scissors::{self as rps, ParseMode};
-use super::rucksack;
-use super::supply_crates::{self, Crane};
+use super::q01_calories;
+use super::q04_cleaning;
+use super::q06_datastream;
+use super::q07_directories;
+use super::q02_rock_paper_scissors::{self as rps, ParseMode};
+use super::q03_rucksack;
+use super::q05_supply_crates::{self, Crane};
 
 pub fn one() {
-    let elf_calories = calories::highest_total_calories_from_file("resources/01_elf_calories.txt");
+    let elf_calories = q01_calories::highest_total_calories_from_file("resources/01_elf_calories.txt");
 
     let length = elf_calories.len();
 
@@ -33,44 +33,44 @@ pub fn two() {
 }
 
 pub fn three() {
-    let rucksacks = rucksack::get_rucksacks_from_file("resources/03_rucksack.txt");
+    let rucksacks = q03_rucksack::get_rucksacks_from_file("resources/03_rucksack.txt");
 
-    let priority_sum = rucksack::get_sum_of_priorities_for_common_items(&rucksacks);
+    let priority_sum = q03_rucksack::get_sum_of_priorities_for_common_items(&rucksacks);
     println!("Part 1: Sum of priorities for items = {priority_sum}");
 
-    let group_sum = rucksack::get_sum_of_priorities_for_group(&rucksacks);
+    let group_sum = q03_rucksack::get_sum_of_priorities_for_group(&rucksacks);
     println!("Part 2: Sum of priorities for group items = {group_sum}");
 }
 
 pub fn four() {
-    let pairs = cleaning::get_cleaning_pairs("resources/04_cleaning_pairs.txt");
+    let pairs = q04_cleaning::get_cleaning_pairs("resources/04_cleaning_pairs.txt");
 
-    let count = cleaning::get_count_of_fully_overlapping_pairs(&pairs);
+    let count = q04_cleaning::get_count_of_fully_overlapping_pairs(&pairs);
     println!("Part 1: Number of fully overlapping cleaning pairs = {count}");
 
-    let count = cleaning::get_count_of_all_overlapping_pairs(&pairs);
+    let count = q04_cleaning::get_count_of_all_overlapping_pairs(&pairs);
     println!("Part 2: Number of all overlapping cleaning pairs = {count}");
 }
 
 pub fn five() {
     let top_crates =
-        supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt", Crane::CM9000);
+        q05_supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt", Crane::CM9000);
     println!("Part 1: Top crates are {top_crates}");
 
     let top_crates =
-        supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt", Crane::CM9001);
+        q05_supply_crates::process_supplies_plan_from_file("resources/05_supplies.txt", Crane::CM9001);
     println!("Part 2: Top crates are {top_crates}");
 }
 
 pub fn six() {
-    let index = datastream::get_marker_end_index_from_file("resources/06_datastream.txt", 4);
+    let index = q06_datastream::get_marker_end_index_from_file("resources/06_datastream.txt", 4);
     println!("Part 1: Index of the end of the marker is {index}");
 
-    let index = datastream::get_marker_end_index_from_file("resources/06_datastream.txt", 14);
+    let index = q06_datastream::get_marker_end_index_from_file("resources/06_datastream.txt", 14);
     println!("Part 2: Index of the end of the marker is {index}");
 }
 
 pub fn seven() {
-    let sum = directories::get_sum_of_large_directories("resources/07_directories.txt");
+    let sum = q07_directories::get_sum_of_large_directories("resources/07_directories.txt");
     println!("Part 1: Sum of directory sizes is {}", sum);
 }

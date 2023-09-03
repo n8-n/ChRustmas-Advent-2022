@@ -1,13 +1,13 @@
 use std::{error::Error, io, process};
 
 pub mod answers;
-mod calories;
-mod cleaning;
-mod datastream;
-mod directories;
-mod rock_paper_scissors;
-mod rucksack;
-mod supply_crates;
+mod q01_calories;
+mod q04_cleaning;
+mod q06_datastream;
+mod q07_directories;
+mod q02_rock_paper_scissors;
+mod q03_rucksack;
+mod q05_supply_crates;
 
 pub fn run() {
     loop {
