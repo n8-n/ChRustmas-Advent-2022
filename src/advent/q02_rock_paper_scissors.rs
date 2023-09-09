@@ -52,15 +52,15 @@ impl Shape {
 
     fn is_win(&self, other: &Shape) -> Result {
         use self::Result::*;
-        use Shape::*;
+        use Shape as S;
 
         match (*self, other) {
-            (Rock, Scissors) => Win,
-            (Paper, Rock) => Win,
-            (Scissors, Paper) => Win,
-            (Rock, Paper) => Loss,
-            (Scissors, Rock) => Loss,
-            (Paper, Scissors) => Loss,
+            (S::Rock, S::Scissors) => Result::Win,
+            (S::Paper, S::Rock) => Result::Win,
+            (S::Scissors, S::Paper) => Result::Win,
+            (S::Rock, S::Paper) => Result::Loss,
+            (S::Scissors, S::Rock) => Result::Loss,
+            (S::Paper, S::Scissors) => Result::Loss,
             _ => Draw,
         }
     }
@@ -94,23 +94,23 @@ impl Result {
     }
 
     fn get_shape_to_match_result(&self, their_shape: &Shape) -> Shape {
-        use self::Result::*;
-        use Shape::*;
+        use self::Result as R;
+        use Shape as S;
 
         match (self, their_shape) {
-            (Win, Rock) => Paper,
-            (Win, Scissors) => Rock,
-            (Win, Paper) => Scissors,
-            (Loss, Rock) => Scissors,
-            (Loss, Scissors) => Paper,
-            (Loss, Paper) => Rock,
+            (R::Win, S::Rock) => S::Paper,
+            (R::Win, S::Scissors) => S::Rock,
+            (R::Win, S::Paper) => S::Scissors,
+            (R::Loss, S::Rock) => S::Scissors,
+            (R::Loss, S::Scissors) => S::Paper,
+            (R::Loss, S::Paper) => S::Rock,
             _ => their_shape.clone(),
         }
     }
 }
 
 impl Round {
-    fn from_line(l: &String, mode: &ParseMode) -> Round {
+    fn from_line(l: &str, mode: &ParseMode) -> Round {
         match mode {
             ParseMode::Choice => Round {
                 theirs: Shape::from_char(l.chars().nth(0).unwrap()),
