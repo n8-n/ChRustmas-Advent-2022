@@ -65,7 +65,7 @@ impl Shape {
         }
     }
 
-    fn from_char(c: char) -> Shape {
+    fn from_char(c: char) -> Self {
         match c {
             'X' | 'A' => Shape::Rock,
             'Y' | 'B' => Shape::Paper,
@@ -84,7 +84,7 @@ impl Result {
         }
     }
 
-    fn from_char(c: char) -> Result {
+    fn from_char(c: char) -> Self {
         match c {
             'X' => Result::Loss,
             'Y' => Result::Draw,
@@ -110,7 +110,7 @@ impl Result {
 }
 
 impl Round {
-    fn from_line(l: &str, mode: &ParseMode) -> Round {
+    fn from_line(l: &str, mode: &ParseMode) -> Self {
         match mode {
             ParseMode::Choice => Round {
                 theirs: Shape::from_char(l.chars().nth(0).unwrap()),

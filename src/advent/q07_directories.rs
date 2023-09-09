@@ -52,7 +52,7 @@ pub struct DirId {
 }
 
 impl DirId {
-    fn new(name: String, id: NodeId) -> DirId {
+    fn new(name: String, id: NodeId) -> Self {
         DirId { name, id }
     }
 }

@@ -56,7 +56,7 @@ pub struct Rucksack {
 }
 
 impl Rucksack {
-    fn from_string(line: &str) -> Rucksack {
+    fn from_string(line: &str) -> Self {
         let (first, second) = line.split_at(line.len() / 2);
 
         Rucksack {
