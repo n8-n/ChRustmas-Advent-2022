@@ -1,6 +1,6 @@
 use std::{error::Error, io, process};
 
-pub mod answers;
+mod answers;
 mod q01_calories;
 mod q02_rock_paper_scissors;
 mod q03_rucksack;
@@ -8,6 +8,7 @@ mod q04_cleaning;
 mod q05_supply_crates;
 mod q06_datastream;
 mod q07_directories;
+mod q08_trees;
 
 pub fn run() {
     loop {
@@ -46,6 +47,7 @@ fn run_fn_for_exercise(n: u8) {
         5 => answers::five(),
         6 => answers::six(),
         7 => answers::seven(),
+        8 => answers::eight(),
         _ => println!("Exercise not yet implemented."),
     }
 }
