@@ -90,6 +90,10 @@ pub fn seven() {
 }
 
 pub fn eight() {
-    let result = q08_trees::get_number_of_visible_trees("resources/08_trees.txt");
+    let grid = q08_trees::create_trees_grid_from_file("resources/08_trees.txt");
+    let result = q08_trees::find_visible_trees(&grid);
     println!("Part 1: Number of visible trees is {result}");
+
+    let result = q08_trees::find_highest_scenic_score(&grid);
+    println!("Part 2: Highest scenic score is {result}");
 }

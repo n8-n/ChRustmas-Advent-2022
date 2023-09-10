@@ -1,13 +1,10 @@
+use std::iter::{Enumerate, Skip};
+use std::slice::{Chunks, Iter};
+
 use crate::common::{grid::Grid, io};
 
-pub fn get_number_of_visible_trees(filename: &str) -> usize {
+pub fn create_trees_grid_from_file(filename: &str) -> Grid<u8> {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
-    let grid = create_trees_grid(lines);
-
-    find_visible_trees(grid)
-}
-
-fn create_trees_grid(lines: Vec<String>) -> Grid<u8> {
     let mut grid = Grid::new();
 
     lines
@@ -16,6 +13,52 @@ fn create_trees_grid(lines: Vec<String>) -> Grid<u8> {
         .for_each(|nums| grid.add_row(nums));
 
     grid
+}
+
+pub fn find_visible_trees(grid: &Grid<u8>) -> usize {
+    // trees on the edge are visible. minus 4 for double-counted corners.
+    // we will need to ignore these when iterating through the grid.
+    let mut visible = (grid.rows * 2) + (grid.columns * 2) - 4;
+
+    enumerator_over_inner_rows(grid).for_each(|(row_index, row)| {
+        iterator_over_inner_columns(row)
+            .filter(|(column_index, tree_height)| {
+                is_tree_visible(**tree_height, (row_index, row), *column_index, &grid)
+            })
+            .for_each(|_| visible += 1);
+    });
+
+    visible
+}
+
+pub fn find_highest_scenic_score(grid: &Grid<u8>) -> usize {
+    // we'll ignore the edge tree rows
+
+    enumerator_over_inner_rows(grid)
+        .map(|(row_index, row)| {
+            iterator_over_inner_columns(row)
+                .map(|(column_index, tree_height)| {
+                    let column = grid.get_column(column_index).expect("Should have column");
+                    get_scenic_score(*tree_height, (row_index, row), (column_index, &column))
+                })
+                .max()
+        })
+        .flatten()
+        .max()
+        .unwrap()
+}
+
+fn enumerator_over_inner_rows(grid: &Grid<u8>) -> Skip<Enumerate<Chunks<'_, u8>>> {
+    let end = grid.elements.len() - grid.columns;
+    grid.elements[..end]
+        .chunks(grid.columns)
+        .enumerate()
+        .skip(1)
+}
+
+fn iterator_over_inner_columns(row: &[u8]) -> Skip<Enumerate<Iter<'_, u8>>> {
+    let end_row = row.len() - 1;
+    row[..end_row].iter().enumerate().skip(1)
 }
 
 fn string_to_numbers(line: &String) -> Vec<u8> {
@@ -27,65 +70,69 @@ fn string_to_numbers(line: &String) -> Vec<u8> {
         .collect();
 }
 
-fn find_visible_trees(grid: Grid<u8>) -> usize {
-    // trees on the edge are visible. minus 4 for double-counted corners.
-    // we will need to ignore these when iterating through the grid.
-    let mut visible = (grid.rows * 2) + (grid.columns * 2) - 4;
-
-    let start = grid.columns;
-    let end = grid.elements.len() - grid.columns;
-
-    grid.elements[start..end]
-        .chunks(grid.columns)
-        .enumerate()
-        .for_each(|(row_index, row)| {
-            let end_row = row.len() - 1;
-
-            row[1..end_row]
-                .iter()
-                .enumerate()
-                .for_each(|(column_index, tree_height)| {
-                    if is_tree_visible(*tree_height, (row_index + 1, row), column_index + 1, &grid) {
-                        visible += 1;
-                    }
-                });
-        });
-
-    visible
-}
-
 fn is_tree_visible(height: u8, row: (usize, &[u8]), column_index: usize, grid: &Grid<u8>) -> bool {
-    let row_index = row.0;
-    let row_values = row.1;
+    let (row_index, row_values) = row;
 
-    // row before
-    let row_before = height_check(&row_values[..column_index], height);
-    if row_before.is_none() {
+    let row_left = height_check(height, &row_values[..column_index]);
+    if row_left.is_none() {
         return true;
     }
 
-    // row after
-    let row_after = height_check(&row_values[(column_index + 1)..], height);
-    if row_after.is_none() {
+    let row_right = height_check(height, &row_values[(column_index + 1)..]);
+    if row_right.is_none() {
         return true;
     }
 
     let column = grid.get_column(column_index).expect("Should have column");
-
-    // column before
-    let column_after = height_check(&column[..row_index], height);
-    if column_after.is_none() {
+    let column_up = height_check(height, &column[..row_index]);
+    if column_up.is_none() {
         return true;
     }
 
-    // column after
-    let column_after = height_check(&column[(row_index + 1)..], height);
-
-    column_after.is_none()
+    let column_down = height_check(height, &column[(row_index + 1)..]);
+    column_down.is_none()
 }
 
-fn height_check(segment: &[u8], height: u8) -> Option<&u8> {
+fn height_check(height: u8, segment: &[u8]) -> Option<&u8> {
     segment.iter().find(|tree: &&u8| height <= **tree)
+}
+
+fn get_scenic_score(height: u8, row: (usize, &[u8]), column: (usize, &[u8])) -> usize {
+    let (row_index, row_values) = row;
+    let (column_index, column_values) = column;
+
+    let row_left = view_len_rev(height, &row_values[..column_index]);
+    let row_right = view_len(height, &row_values[(column_index + 1)..]);
+    let column_up = view_len_rev(height, &column_values[..row_index]);
+    let column_down = view_len(height, &column_values[(row_index + 1)..]);
+
+    row_left * row_right * column_up * column_down
+}
+
+fn view_len(height: u8, segment: &[u8]) -> usize {
+    view_len_iterate(height, segment.iter())
+}
+
+fn view_len_rev(height: u8, segment: &[u8]) -> usize {
+    view_len_iterate(height, segment.iter().rev())
+}
+
+
+fn view_len_iterate<'a, I>(height: u8, iter: I) -> usize
+where I: Iterator<Item = &'a u8> {
+    let mut len = 0;
+    for tree in iter {
+        if height > *tree {
+            len += 1;
+        } else if height == *tree {
+            len += 1;
+            break;
+        } else {
+            len += 1;
+            break;
+        }
+    }
+    len
 }
 
 //
@@ -105,7 +152,38 @@ mod tests {
 
     #[test]
     fn test_get_visible_trees_from_file() {
-        let trees = get_number_of_visible_trees("resources/test/08_trees.txt");
+        let trees_grid = create_trees_grid_from_file("resources/test/08_trees.txt");
+        let trees = find_visible_trees(&trees_grid);
         assert_eq!(21, trees);
+    }
+
+    #[test]
+    fn test_get_max_scenic_score_from_file() {
+        let trees_grid = create_trees_grid_from_file("resources/test/08_trees.txt");
+        let trees = find_highest_scenic_score(&trees_grid);
+        assert_eq!(8, trees);
+    }
+
+    #[test]
+    fn test_view_len_rev() {
+        let height = 3;
+        let array = [2, 7, 1, 2];
+        assert_eq!(3, view_len_rev(height, &array));
+
+        let array = [2, 7, 1, 3];
+        assert_eq!(1, view_len_rev(height, &array));
+    }
+
+    #[test]
+    fn test_get_scenic_score() {
+        let row: (usize, &[u8]) = (2, &[3, 3, 5, 4, 9]);
+        let column: (usize, &[u8]) = (3, &[3, 5, 3, 5, 3]);
+        println!("{:?}", row);
+        println!("{:?}", column);
+        let height = 5 as u8;
+
+        // TODO: what's wrong with this test?
+
+        assert_eq!(8, get_scenic_score(height, row, column))
     }
 }
