@@ -1,9 +1,15 @@
 use std::fmt::Display;
 
+/// Grid is a 2-dimensional, row-major ordered array. Column size is fixed, but it can have as many rows as you want.
+/// Rows are added with the `add_row` function.
+///
+/// Column size can be set on instatiation using `with_column_size`. If column size is not set, it will be set as the
+/// length of the first row added to the grid.
+#[derive(Debug)]
 pub struct Grid<T> {
-    elements: Vec<T>,
-    columns: usize,
-    rows: usize,
+    pub elements: Vec<T>,
+    pub columns: usize,
+    pub rows: usize,
 }
 
 #[allow(dead_code)]
@@ -17,7 +23,10 @@ impl<T: Clone> Grid<T> {
     }
 
     pub fn with_column_size(mut self, columns: usize) -> Self {
-        self.columns = columns;
+        if self.columns == 0 {
+            self.columns = columns;
+        }
+
         self
     }
 
@@ -39,11 +48,8 @@ impl<T: Clone> Grid<T> {
         if row > self.rows {
             return None;
         }
-
         let start = self.columns * row;
         let end = start + self.rows;
-
-        println!("start:{start}, end:{end}");
 
         Some(self.elements[start..end].to_vec())
     }
@@ -61,6 +67,22 @@ impl<T: Clone> Grid<T> {
 
         Some(column_vec)
     }
+
+    // Get grid without first and last rows and columns.
+    pub fn get_inner_grid(&self) -> Self {
+        let mut new_grid = Grid::<T>::new();
+        let start = self.columns;
+        let end = self.elements.len() - self.columns;
+
+        self.elements[start..end]
+            .chunks(self.columns)
+            .for_each(|row| {
+                let end_column = row.len() - 1;
+                new_grid.add_row(row[1..end_column].to_vec());
+            });
+
+        new_grid
+    }
 }
 
 impl<T: Display + std::fmt::Debug + Clone> Display for Grid<T> {
@@ -77,8 +99,14 @@ impl<T: Display + std::fmt::Debug + Clone> Display for Grid<T> {
                 });
                 write!(f, "\n").unwrap();
             });
-        
+
         Ok(())
+    }
+}
+
+impl<T: PartialEq> PartialEq for Grid<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.elements == other.elements
     }
 }
 
@@ -89,6 +117,16 @@ impl<T: Display + std::fmt::Debug + Clone> Display for Grid<T> {
 // #[rustfmt::skip]
 mod tests {
     use super::*;
+
+    fn get_test_grid() -> Grid<u8> {
+        let mut grid = Grid::<u8>::new();
+        grid.add_row(vec![0, 0, 1, 5, 4]);
+        grid.add_row(vec![1, 3, 1, 7, 4]);
+        grid.add_row(vec![8, 7, 1, 10, 4]);
+        grid.add_row(vec![99, 2, 1, 12, 4]);
+        grid.add_row(vec![9, 20, 61, 2, 7]);
+        grid
+    }
 
     #[test]
     fn test_grid_creation() {
@@ -110,31 +148,30 @@ mod tests {
 
     #[test]
     fn test_get_row() {
-        let mut grid = Grid::<u8>::new();
-        let row0 = vec![0, 0, 1, 4];
-        let row3 = vec![99, 2, 1, 4];
-        grid.add_row(row0.clone());
-        grid.add_row(vec![1, 3, 1, 4]);
-        grid.add_row(vec![8, 7, 1, 4]);
-        grid.add_row(row3.clone());
+        let grid = get_test_grid();
 
-        assert_eq!(row0, grid.get_row(0).unwrap());
-        assert_eq!(row3, grid.get_row(3).unwrap());
+        assert_eq!(vec![0, 0, 1, 5, 4], grid.get_row(0).unwrap());
+        assert_eq!(vec![9, 20, 61, 2, 7], grid.get_row(4).unwrap());
         assert_eq!(None, grid.get_row(20));
     }
 
     #[test]
     fn test_get_column() {
-        let mut grid = Grid::<u8>::new();
-        grid.add_row(vec![0, 0, 1, 4]);
-        grid.add_row(vec![1, 3, 1, 4]);
-        grid.add_row(vec![8, 7, 1, 4]);
-        grid.add_row(vec![99, 2, 1, 4]);
-
-        println!("{}", grid);
-
-        assert_eq!(vec![0, 1, 8, 99], grid.get_column(0).unwrap());
-        assert_eq!(vec![4, 4, 4, 4], grid.get_column(3).unwrap());
+        let grid = get_test_grid();
+        assert_eq!(vec![0, 1, 8, 99, 9], grid.get_column(0).unwrap());
+        assert_eq!(vec![4, 4, 4, 4, 7], grid.get_column(4).unwrap());
         assert_eq!(None, grid.get_column(20));
+    }
+
+    #[test]
+    fn test_get_inner_grid() {
+        let grid = get_test_grid();
+        let mut expected_grid = Grid::<u8>::new();
+        expected_grid.add_row(vec![3, 1, 7]);
+        expected_grid.add_row(vec![7, 1, 10]);
+        expected_grid.add_row(vec![2, 1, 12]);
+
+        let inner_grid = grid.get_inner_grid();
+        assert_eq!(expected_grid, inner_grid);
     }
 }
