@@ -97,3 +97,7 @@ pub fn eight() {
     let result = q08_trees::find_highest_scenic_score(&grid);
     println!("Part 2: Highest scenic score is {result}");
 }
+
+pub fn nine() {
+    println!("Part 1:");
+}
