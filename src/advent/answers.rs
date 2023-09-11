@@ -5,6 +5,7 @@ use super::q04_cleaning;
 use super::q05_supply_crates::{self, Crane};
 use super::q06_datastream;
 use super::q07_directories;
+use super::q08_trees;
 
 pub fn one() {
     let elf_calories =
@@ -79,11 +80,20 @@ pub fn seven() {
     let dirs = q07_directories::parse_directory_sizes_from_file("resources/07_directories.txt");
 
     let sum = q07_directories::get_sum_of_large_directories(&dirs);
-    println!("Part 1: Sum of directory sizes is {}", sum);
+    println!("Part 1: Sum of directory sizes is {sum}");
 
     let size_smallest = q07_directories::get_size_of_smallest_directory_to_delete(&dirs);
     println!(
         "Part 2: Size of smallest directory we can delete to free space is {}",
         size_smallest
     );
+}
+
+pub fn eight() {
+    let grid = q08_trees::create_trees_grid_from_file("resources/08_trees.txt");
+    let result = q08_trees::find_visible_trees(&grid);
+    println!("Part 1: Number of visible trees is {result}");
+
+    let result = q08_trees::find_highest_scenic_score(&grid);
+    println!("Part 2: Highest scenic score is {result}");
 }

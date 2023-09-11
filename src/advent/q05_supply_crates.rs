@@ -65,7 +65,7 @@ impl fmt::Display for Move {
 impl Supplies {
     const CRATE_SPACES: usize = 4; // four spaces for each crate in line of file
 
-    fn new(num: usize) -> Supplies {
+    fn new(num: usize) -> Self {
         let sts = iter::repeat_with(|| Vec::<char>::new())
             .take(num)
             .collect::<Vec<Vec<char>>>();
@@ -73,7 +73,7 @@ impl Supplies {
         Supplies { stacks: sts }
     }
 
-    fn create_supply_stacks(lines: Vec<String>) -> Supplies {
+    fn create_supply_stacks(lines: Vec<String>) -> Self {
         let line_len = lines[0].len() + 1; // plus one space to make line divisible by 4
         let mut supplies = Supplies::new(line_len / Supplies::CRATE_SPACES);
 
