@@ -122,15 +122,8 @@ fn view_len_iterate<'a, I>(height: u8, iter: I) -> usize
 where I: Iterator<Item = &'a u8> {
     let mut len = 0;
     for tree in iter {
-        if height > *tree {
-            len += 1;
-        } else if height == *tree {
-            len += 1;
-            break;
-        } else {
-            len += 1;
-            break;
-        }
+        len += 1;
+        if height <= *tree { break; }
     }
     len
 }
@@ -176,14 +169,9 @@ mod tests {
 
     #[test]
     fn test_get_scenic_score() {
-        let row: (usize, &[u8]) = (2, &[3, 3, 5, 4, 9]);
-        let column: (usize, &[u8]) = (3, &[3, 5, 3, 5, 3]);
-        println!("{:?}", row);
-        println!("{:?}", column);
+        let row: (usize, &[u8]) = (3, &[3, 3, 5, 4, 9]);
+        let column: (usize, &[u8]) = (2, &[3, 5, 3, 5, 3]);
         let height = 5 as u8;
-
-        // TODO: what's wrong with this test?
-
         assert_eq!(8, get_scenic_score(height, row, column))
     }
 }
