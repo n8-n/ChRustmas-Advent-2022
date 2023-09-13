@@ -1,16 +1,16 @@
 use crate::common::io;
 
-pub fn get_sum_of_priorities_for_common_items(rucksacks: &Vec<Rucksack>) -> usize {
+pub fn get_sum_of_priorities_for_common_items(rucksacks: &[Rucksack]) -> usize {
     rucksacks.iter().fold(0, |acc, rs: &Rucksack| -> usize {
         acc + rs.common_item_value()
     })
 }
 
-pub fn get_sum_of_priorities_for_group(rucksacks: &Vec<Rucksack>) -> usize {
+pub fn get_sum_of_priorities_for_group(rucksacks: &[Rucksack]) -> usize {
     rucksacks
         .chunks(3)
         .map(|rs: &[Rucksack]| rs[0].group_item_value())
-        .fold(0, |acc, g: usize| -> usize { acc + g })
+        .sum()
 }
 
 pub fn get_rucksacks_from_file(filename: &str) -> Vec<Rucksack> {
@@ -18,7 +18,7 @@ pub fn get_rucksacks_from_file(filename: &str) -> Vec<Rucksack> {
 
     lines
         .chunks(3)
-        .map(|ch: &[String]| -> Vec<Rucksack> {
+        .flat_map(|ch: &[String]| -> Vec<Rucksack> {
             let common = get_common_char(vec![&ch[0], &ch[1], &ch[2]]);
 
             ch.iter()
@@ -30,7 +30,6 @@ pub fn get_rucksacks_from_file(filename: &str) -> Vec<Rucksack> {
                 })
                 .collect::<Vec<Rucksack>>()
         })
-        .flatten()
         .collect::<Vec<Rucksack>>()
 }
 
@@ -60,7 +59,7 @@ impl Rucksack {
         let (first, second) = line.split_at(line.len() / 2);
 
         Rucksack {
-            common_item: get_common_char(vec![&first, &second]).unwrap(),
+            common_item: get_common_char(vec![first, second]).unwrap(),
             group_common: None,
         }
     }
@@ -83,15 +82,13 @@ fn get_common_char(str_vec: Vec<&str>) -> Option<char> {
         for (index, s) in str_vec[1..].iter().enumerate() {
             if !s.contains(c) {
                 continue 'char_loop;
-            } else {
-                if index == str_vec.len() - 2 {
-                    return Some(c);
-                }
+            } else if index == str_vec.len() - 2 {
+                return Some(c);
             }
         }
     }
 
-    return None;
+    None
 }
 
 //

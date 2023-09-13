@@ -34,7 +34,7 @@ fn prompt_user_for_choice() -> Result<(), Box<dyn Error>> {
         run_fn_for_exercise(choice);
     }
 
-    print!("\n");
+    println!();
 
     Ok(())
 }

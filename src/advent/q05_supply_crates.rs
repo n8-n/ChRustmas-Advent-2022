@@ -22,7 +22,7 @@ pub fn process_supplies_plan_from_file(filename: &str, crane_type: Crane) -> Str
     supplies.get_top_of_stacks()
 }
 
-fn parse_populate_supply_stacks(lines: &Vec<String>) -> Option<(Supplies, usize)> {
+fn parse_populate_supply_stacks(lines: &[String]) -> Option<(Supplies, usize)> {
     for (i, l) in lines.iter().enumerate() {
         if l.is_empty() {
             let stacks = Supplies::create_supply_stacks(lines[0..i - 1].to_vec());
@@ -66,7 +66,7 @@ impl Supplies {
     const CRATE_SPACES: usize = 4; // four spaces for each crate in line of file
 
     fn new(num: usize) -> Self {
-        let sts = iter::repeat_with(|| Vec::<char>::new())
+        let sts = iter::repeat_with(Vec::<char>::new)
             .take(num)
             .collect::<Vec<Vec<char>>>();
 

@@ -9,13 +9,13 @@ pub fn get_cleaning_pairs(filename: &str) -> Vec<CleaningPair> {
         .collect::<Vec<CleaningPair>>()
 }
 
-pub fn get_count_of_fully_overlapping_pairs(pairs: &Vec<CleaningPair>) -> u16 {
+pub fn get_count_of_fully_overlapping_pairs(pairs: &[CleaningPair]) -> u16 {
     pairs.iter().fold(0, |total, pair| {
         total + (if pair.do_pairs_fully_overlap() { 1 } else { 0 })
     })
 }
 
-pub fn get_count_of_all_overlapping_pairs(pairs: &Vec<CleaningPair>) -> u16 {
+pub fn get_count_of_all_overlapping_pairs(pairs: &[CleaningPair]) -> u16 {
     pairs.iter().fold(0, |total, pair| {
         total + (if pair.do_pairs_overlap() { 1 } else { 0 })
     })
