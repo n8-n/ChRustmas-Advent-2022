@@ -6,6 +6,7 @@ use super::q05_supply_crates::{self, Crane};
 use super::q06_datastream;
 use super::q07_directories;
 use super::q08_trees;
+use super::q09_rope;
 
 pub fn one() {
     let elf_calories =
@@ -99,5 +100,6 @@ pub fn eight() {
 }
 
 pub fn nine() {
-    println!("Part 1:");
+    let result = q09_rope::get_answer("resources/09_rope.txt");
+    println!("Part 1: {result}");
 }

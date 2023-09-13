@@ -8,50 +8,84 @@ use std::collections::HashSet;
 
 use crate::common::io;
 
-pub fn get_answer(filename: &str) -> () {
+pub fn get_answer(filename: &str) -> usize {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
+    let mut rope = Rope::new();
+    
+    for line in lines {
+        let mut chars = line.chars();
+        let direction = chars.next().expect("Should be char");
+        let steps = chars.skip(1).next().expect("Should be char").to_digit(10).unwrap() as u8;
 
+        rope.move_head(Direction::from(direction).unwrap(), steps);
+    }
+    println!("{:?}", rope.tail_visited);
+    rope.tail_visited.len()
 }
 
 struct Rope {
-    head_xy: Position,
-    tail_xy: Position,
-    tail_visited: HashSet<Position>
+    head_xy: Point,
+    tail_xy: Point,
+    tail_visited: HashSet<Point>
 }
 
 impl Rope {
     fn new() -> Self {
+        let mut visited = HashSet::new();
+        let tail = Point::new();
+        visited.insert(tail.clone());
         Rope {
-            head_xy: Position::new(),
-            tail_xy: Position::new(),
-            tail_visited: HashSet::new()
+            head_xy: Point::new(),
+            tail_xy: tail,
+            tail_visited: visited
         }
     }
 
     fn move_head(&mut self, direction: Direction, steps: u8) {
         for _ in 0..steps {
-            // move head
             self.head_xy.move_position(&direction);
 
-            // check if tail needs to move
+            if let Some(direction) = self.should_move_tail() {
+                let diff_x = self.tail_xy.x - direction.x;
+                let diff_y = self.tail_xy.y - direction.y;
+
+                // if diff_x > 0 {
+                //     self.tail_xy.x += 1;
+                // } else if diff_x < 0 {
+                //     self.tail_xy.x -= 1;
+                // }
+
+                // if diff_y > 0 {
+                //     self.tail_xy.y += 1;
+                // } else if diff_y < 0 {
+                //     self.tail_xy.y -= 1;
+                // }
+
+
+                self.tail_visited.insert(self.tail_xy.clone());
+            }
         }
     }
 
-    fn should_move_tail(&self) -> bool {
-        // should move tail if head and tail are not touching
-        self.head_xy.x - self.tail_xy.x == 0
+    fn should_move_tail(&self) -> Option<Point> {
+        let head = &self.head_xy;
+        let tail = &self.tail_xy;
+        if !self.head_xy.is_point_adjacent(&self.tail_xy) {
+            return Some(Point { x: head.x - tail.x, y: head.y - tail.y });
+        }
+        None
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-struct Position {
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+struct Point {
     x: i32,
     y: i32
 }
 
-impl Position {
+impl Point {
     fn new() -> Self {
-        Position { x: 0, y: 0 }
+        Point { x: 0, y: 0 }
     }
 
     fn move_position(&mut self, direction: &Direction) {
@@ -64,11 +98,10 @@ impl Position {
     }
 
     fn is_point_adjacent(&self, other: &Self) -> bool {
-        let x = (self.x - other.x).abs();
-        let y = (self.y - other.y).abs();
+        let a = (self.x - other.x).abs();
+        let b = (self.y - other.y).abs();
         
-        // TODO: fix diagonal check
-        (x + y == 1) || (x - y == 0)
+        (a <= 1) && (b <= 1)
     }
 
     // 0, 0
@@ -113,11 +146,31 @@ mod tests {
 
     #[test]
     fn test_move_position() {
-        let mut pos = Position::new();
+        let mut pos = Point::new();
         pos.move_position(&Direction::Down);
-        assert_eq!(Position{ x: 0, y: -1}, pos);
+        assert_eq!(Point{ x: 0, y: -1}, pos);
 
         pos.move_position(&Direction::Right);
-        assert_eq!(Position{ x: 1, y: -1}, pos);
+        assert_eq!(Point{ x: 1, y: -1}, pos);
+    }
+
+    #[test]
+    fn test_is_adjacent() {
+        let pos = Point { x: 0, y: 0};
+
+        for i in -1..=1 {
+            for j in -1..=1 {
+                assert!(pos.is_point_adjacent(&Point { x: i, y: j}));
+            }
+        }
+
+        assert!(!pos.is_point_adjacent(&Point { x: 1, y: 3}));
+        assert!(!pos.is_point_adjacent(&Point { x: 3, y: 3}));
+    }
+
+    #[test]
+    fn test_move_rope_knots() {
+        let result = get_answer("resources/test/09_rope.txt");
+        assert_eq!(13, result);
     }
 }
