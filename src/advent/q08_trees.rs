@@ -115,13 +115,16 @@ fn view_len_rev(height: u8, segment: &[u8]) -> usize {
     view_len_iterate(height, segment.iter().rev())
 }
 
-
 fn view_len_iterate<'a, I>(height: u8, iter: I) -> usize
-where I: Iterator<Item = &'a u8> {
+where
+    I: Iterator<Item = &'a u8>,
+{
     let mut len = 0;
     for tree in iter {
         len += 1;
-        if height <= *tree { break; }
+        if height <= *tree {
+            break;
+        }
     }
     len
 }
