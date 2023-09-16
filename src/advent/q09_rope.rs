@@ -1,9 +1,9 @@
-use std::collections::HashSet;
 use crate::common::io;
+use std::collections::HashSet;
 
-pub fn get_answer(filename: &str) -> usize {
+pub fn get_number_of_spaces_visited(filename: &str, rope_size: usize) -> usize {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
-    let mut rope = Rope::new();
+    let mut rope = Rope::new(rope_size);
 
     for line in lines {
         let (direction, steps) = line.split_once(' ').expect("Should be able to split");
@@ -19,34 +19,49 @@ pub fn get_answer(filename: &str) -> usize {
 }
 
 struct Rope {
-    head_xy: Point,
-    tail_xy: Point,
+    knots: Vec<Point>,
     tail_visited: HashSet<Point>,
 }
 
 impl Rope {
-    fn new() -> Self {
-        let mut visited = HashSet::new();
-        let tail = Point::new();
-        visited.insert(tail.clone());
+    fn new(size: usize) -> Self {
+        let mut knots = Vec::with_capacity(size);
+        (0..size).for_each(|_| knots.push(Point::new()));
+
+        let mut tail_visited = HashSet::new();
+        tail_visited.insert(Point::new());
+
         Rope {
-            head_xy: Point::new(),
-            tail_xy: tail,
-            tail_visited: visited,
+            knots,
+            tail_visited,
         }
     }
 
     fn move_head(&mut self, direction: Point, steps: u8) {
         for _ in 0..steps {
-            let head = &mut self.head_xy;
-            let tail = &mut self.tail_xy;
-            head.move_position(&direction);
+            let mut to_move = direction.clone();
+            
+            let mut iter = self.knots.iter_mut().peekable();
 
-            if !head.is_point_adjacent(tail) {
-                let diff_move = get_direction_from_diff(head, tail);
-                tail.move_position(&diff_move);
-                self.tail_visited.insert(tail.clone());
+            while let Some(knot) = iter.next() {
+                let first = knot;
+                first.move_position(&to_move);
+
+                let second = iter.peek();
+
+                if second.is_some() {
+                    let second = second.unwrap();
+                    if !first.is_point_adjacent(&second) {
+                        let diff_move = get_direction_from_diff(&first, &second);
+                        to_move = diff_move;
+                    } else {
+                        // don't need to move. Move point is (0,0)
+                        to_move = Point::new();
+                    }
+                }
             }
+            let tail = self.knots.last_mut().expect("Should have last element");
+            self.tail_visited.insert(tail.clone());
         }
     }
 }
@@ -54,7 +69,7 @@ impl Rope {
 fn get_direction_from_diff(p1: &Point, p2: &Point) -> Point {
     let diff_x = p1.x - p2.x;
     let diff_y = p1.y - p2.y;
-    let space_move = |p: i32| -> i32 {              
+    let space_move = |p: i32| -> i32 {
         if p > 0 {
             1
         } else if p < 0 {
@@ -145,7 +160,9 @@ mod tests {
 
     #[test]
     fn test_move_rope_knots() {
-        let result = get_answer("resources/test/09_rope.txt");
+        let result = get_number_of_spaces_visited("resources/test/09_rope.txt", 2);
         assert_eq!(13, result);
+        let result = get_number_of_spaces_visited("resources/test/09_rope.txt", 10);
+        assert_eq!(1, result);
     }
 }

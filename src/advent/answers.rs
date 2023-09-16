@@ -100,6 +100,9 @@ pub fn eight() {
 }
 
 pub fn nine() {
-    let result = q09_rope::get_answer("resources/09_rope.txt");
-    println!("Part 1: {result}");
+    let result = q09_rope::get_number_of_spaces_visited("resources/09_rope.txt", 2);
+    println!("Part 1: Number of positions visited by tail is {result}");
+
+    let result = q09_rope::get_number_of_spaces_visited("resources/09_rope.txt", 10);
+    println!("Part 2: Number of positions visited by tail is {result}");
 }
