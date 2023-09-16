@@ -6,6 +6,7 @@ use super::q05_supply_crates::{self, Crane};
 use super::q06_datastream;
 use super::q07_directories;
 use super::q08_trees;
+use super::q09_rope;
 
 pub fn one() {
     let elf_calories =
@@ -96,4 +97,12 @@ pub fn eight() {
 
     let result = q08_trees::find_highest_scenic_score(&grid);
     println!("Part 2: Highest scenic score is {result}");
+}
+
+pub fn nine() {
+    let result = q09_rope::get_number_of_spaces_visited("resources/09_rope.txt", 2);
+    println!("Part 1: Number of positions visited by tail is {result}");
+
+    let result = q09_rope::get_number_of_spaces_visited("resources/09_rope.txt", 10);
+    println!("Part 2: Number of positions visited by tail is {result}");
 }

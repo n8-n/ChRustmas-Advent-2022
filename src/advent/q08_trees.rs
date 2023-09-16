@@ -23,7 +23,7 @@ pub fn find_visible_trees(grid: &Grid<u8>) -> usize {
     enumerator_over_inner_rows(grid).for_each(|(row_index, row)| {
         iterator_over_inner_columns(row)
             .filter(|(column_index, tree_height)| {
-                is_tree_visible(**tree_height, (row_index, row), *column_index, &grid)
+                is_tree_visible(**tree_height, (row_index, row), *column_index, grid)
             })
             .for_each(|_| visible += 1);
     });
@@ -35,7 +35,7 @@ pub fn find_highest_scenic_score(grid: &Grid<u8>) -> usize {
     // we'll ignore the edge tree rows
 
     enumerator_over_inner_rows(grid)
-        .map(|(row_index, row)| {
+        .flat_map(|(row_index, row)| {
             iterator_over_inner_columns(row)
                 .map(|(column_index, tree_height)| {
                     let column = grid.get_column(column_index).expect("Should have column");
@@ -43,7 +43,6 @@ pub fn find_highest_scenic_score(grid: &Grid<u8>) -> usize {
                 })
                 .max()
         })
-        .flatten()
         .max()
         .unwrap()
 }
@@ -64,8 +63,7 @@ fn iterator_over_inner_columns(row: &[u8]) -> Skip<Enumerate<Iter<'_, u8>>> {
 fn string_to_numbers(line: &String) -> Vec<u8> {
     return line
         .chars()
-        .map(|c: char| c.to_digit(10))
-        .flatten()
+        .flat_map(|c: char| c.to_digit(10))
         .map(|n| n as u8)
         .collect();
 }
@@ -117,13 +115,16 @@ fn view_len_rev(height: u8, segment: &[u8]) -> usize {
     view_len_iterate(height, segment.iter().rev())
 }
 
-
 fn view_len_iterate<'a, I>(height: u8, iter: I) -> usize
-where I: Iterator<Item = &'a u8> {
+where
+    I: Iterator<Item = &'a u8>,
+{
     let mut len = 0;
     for tree in iter {
         len += 1;
-        if height <= *tree { break; }
+        if height <= *tree {
+            break;
+        }
     }
     len
 }

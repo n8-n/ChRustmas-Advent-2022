@@ -97,7 +97,7 @@ impl<T: Display + std::fmt::Debug + Clone> Display for Grid<T> {
                 self.elements[index..end].iter().for_each(|e| {
                     write!(f, "{} ", e).unwrap();
                 });
-                write!(f, "\n").unwrap();
+                writeln!(f).unwrap();
             });
 
         Ok(())

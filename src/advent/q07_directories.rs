@@ -75,7 +75,7 @@ struct TreeInfo<'a> {
 }
 
 fn parse_line_add_to_tree(line: &str, tree_info: TreeInfo) -> NodeId {
-    let tokens = line.split(" ").collect::<Vec<_>>();
+    let tokens = line.split(' ').collect::<Vec<_>>();
     let current_node_id = *tree_info.current_node_id;
 
     match tokens[0] {

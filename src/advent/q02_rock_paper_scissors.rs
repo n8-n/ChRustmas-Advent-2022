@@ -104,7 +104,7 @@ impl Result {
             (R::Loss, S::Rock) => S::Scissors,
             (R::Loss, S::Scissors) => S::Paper,
             (R::Loss, S::Paper) => S::Rock,
-            _ => their_shape.clone(),
+            _ => *their_shape,
         }
     }
 }
@@ -113,11 +113,11 @@ impl Round {
     fn from_line(l: &str, mode: &ParseMode) -> Self {
         match mode {
             ParseMode::Choice => Round {
-                theirs: Shape::from_char(l.chars().nth(0).unwrap()),
+                theirs: Shape::from_char(l.chars().next().unwrap()),
                 mine: Shape::from_char(l.chars().nth(2).unwrap()),
             },
             ParseMode::Result => {
-                let temp_shape = Shape::from_char(l.chars().nth(0).unwrap());
+                let temp_shape = Shape::from_char(l.chars().next().unwrap());
                 let result = Result::from_char(l.chars().nth(2).unwrap());
                 Round {
                     mine: result.get_shape_to_match_result(&temp_shape),

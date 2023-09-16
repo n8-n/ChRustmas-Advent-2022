@@ -9,6 +9,7 @@ mod q05_supply_crates;
 mod q06_datastream;
 mod q07_directories;
 mod q08_trees;
+mod q09_rope;
 
 pub fn run() {
     loop {
@@ -33,7 +34,7 @@ fn prompt_user_for_choice() -> Result<(), Box<dyn Error>> {
         run_fn_for_exercise(choice);
     }
 
-    print!("\n");
+    println!();
 
     Ok(())
 }
@@ -48,6 +49,7 @@ fn run_fn_for_exercise(n: u8) {
         6 => answers::six(),
         7 => answers::seven(),
         8 => answers::eight(),
+        9 => answers::nine(),
         _ => println!("Exercise not yet implemented."),
     }
 }

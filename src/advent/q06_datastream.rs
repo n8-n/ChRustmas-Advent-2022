@@ -19,7 +19,7 @@ fn find_end_index_of_packet_start_marker(
     let (initial, rest) = datastream.split_at_mut(marker_size);
     let mut previous_chars: VecDeque<char> = VecDeque::from(initial.chars().collect::<Vec<char>>());
 
-    for (i, c) in rest.chars().into_iter().enumerate() {
+    for (i, c) in rest.chars().enumerate() {
         if are_chars_unique(&previous_chars) {
             let index = (i + marker_size) as u16;
             return Some(index);
