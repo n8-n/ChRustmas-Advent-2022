@@ -49,10 +49,9 @@ impl Rope {
 
                 let second = iter.peek();
 
-                if second.is_some() {
-                    let second = second.unwrap();
-                    if !first.is_point_adjacent(&second) {
-                        let diff_move = get_direction_from_diff(&first, &second);
+                if let Some(second) = second {
+                    if !first.is_point_adjacent(second) {
+                        let diff_move = get_direction_from_diff(first, second);
                         to_move = diff_move;
                     } else {
                         // don't need to move. Move point is (0,0)
