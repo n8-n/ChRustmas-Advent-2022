@@ -1,13 +1,19 @@
 use crate::common::io;
 
-pub fn get_sum_of_signal_strengths(filename: &str) -> i32 {
+pub fn parse_instructions(filename: &str) -> Vec<Instruction> {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
+    lines
+        .iter()
+        .map(|s| parse_line_to_instruction(&s))
+        .collect()
+}
+
+pub fn get_sum_of_signal_strengths(instructions: &Vec<Instruction>) -> i32 {
     let mut cycles_to_check = vec![20, 60, 100, 140, 180, 220];
     let mut cycles_values: Vec<i32> = Vec::with_capacity(cycles_to_check.len());
 
-    let _ = lines
+    instructions
         .iter()
-        .map(|s| parse_line_to_instruction(&s))
         .fold((1, 0), |(regx, cycles): (i32, i32), instruction| {
             if cycles_to_check.is_empty() {
                 return (regx, cycles);
@@ -18,10 +24,7 @@ pub fn get_sum_of_signal_strengths(filename: &str) -> i32 {
 
                 if current_cycle == cycles_to_check[0] {
                     let strength = regx * cycles_to_check[0];
-                    
-                    println!("regx: {regx}, cycles: {cycles}");
                     cycles_values.push(strength);
-
                     cycles_to_check = cycles_to_check[1..].to_vec();
                     break;
                 }
@@ -31,9 +34,11 @@ pub fn get_sum_of_signal_strengths(filename: &str) -> i32 {
             (regx + instruction.value(), cycles + instruction.cycles())
         });
 
-    println!("{:#?}", cycles_values);
-    
     cycles_values.iter().sum()
+}
+
+pub fn print_to_screen(instructions: &Vec<Instruction>) {
+    
 }
 
 fn parse_line_to_instruction(line: &str) -> Instruction {
@@ -50,7 +55,7 @@ fn parse_line_to_instruction(line: &str) -> Instruction {
 
 
 #[derive(Debug, Eq, PartialEq )]
-enum Instruction {
+pub enum Instruction {
     Noop,
     Addx(i32)
 }
@@ -91,7 +96,7 @@ mod tests {
 
     #[test]
     fn test_get_sum_of_strengths() {
-        let result = get_sum_of_signal_strengths("resources/test/10_cathode.txt");
+        let result = get_sum_of_signal_strengths(&parse_instructions("resources/test/10_cathode.txt"));
         assert_eq!(13140, result);
     }
 }

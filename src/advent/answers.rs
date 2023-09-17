@@ -111,6 +111,7 @@ pub fn nine() {
 }
 
 pub fn ten() {
-    let result = q10_cathode::get_sum_of_signal_strengths("resources/10_cathode.txt");
+    let instructions = q10_cathode::parse_instructions("resources/10_cathode.txt");
+    let result = q10_cathode::get_sum_of_signal_strengths(&instructions);
     println!("Part 1: Sum of six signal strengths is {result}");
 }
