@@ -10,6 +10,7 @@ mod q06_datastream;
 mod q07_directories;
 mod q08_trees;
 mod q09_rope;
+mod q10_cathode;
 
 pub fn run() {
     loop {
@@ -50,6 +51,7 @@ fn run_fn_for_exercise(n: u8) {
         7 => answers::seven(),
         8 => answers::eight(),
         9 => answers::nine(),
+        10 => answers::ten(),
         _ => println!("Exercise not yet implemented."),
     }
 }
