@@ -92,10 +92,10 @@ impl<T: Display + std::fmt::Debug + Clone> Display for Grid<T> {
             .enumerate()
             .step_by(self.columns)
             .for_each(|(index, _)| {
-                let end = index + self.rows;
+                let end = index + self.columns;
 
                 self.elements[index..end].iter().for_each(|e| {
-                    write!(f, "{} ", e).unwrap();
+                    write!(f, "{}", e).unwrap();
                 });
                 writeln!(f).unwrap();
             });
