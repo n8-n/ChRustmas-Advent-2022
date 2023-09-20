@@ -41,46 +41,40 @@ pub fn get_sum_of_signal_strengths(instructions: &Vec<Instruction>) -> i32 {
 }
 
 pub fn print_to_screen(instructions: &Vec<Instruction>) {
-    let mut screen: Grid<char> = Grid::new();
+    let mut screen: Grid<char> = Grid::new().with_column_size(CYCLES_PER_ROW);
     let mut ins_iter = instructions.iter().peekable();
     let mut regx: i32 = 1;
+    let mut position = 0;
 
-    'out: for _ in 0..SCREEN_ROWS {
-        let mut row = Vec::<char>::new();
-        let mut cycle = 1;
+    while position != SCREEN_ROWS * CYCLES_PER_ROW {
+        if ins_iter.peek().is_none() {
+            break;
+        };
 
-        while cycle != SCREEN_ROWS * CYCLES_PER_ROW {
-            let next = ins_iter.next();
-            if next.is_none() { break 'out; };
+        screen.elements.push(get_pixel(regx, position));
+        position += 1;
 
-            let next = next.unwrap();
-
-            let pixel = get_pixel(regx, cycle as i32);
-            row.push(pixel);
-
-
-            if next.are_same_instruction(Instruction::Addx(0)) {
-                cycle += 1;
-                regx += next.value();
-                let pixel = get_pixel(regx, cycle as i32);
-                row.push(pixel);
+        let next = ins_iter.next().expect("Should be a value");
+        match next {
+            Instruction::Addx(x) => {
+                screen.elements.push(get_pixel(regx, position));
+                position += 1;
+                regx += x;
             }
-
-            if cycle % CYCLES_PER_ROW == 0 {
-                screen.add_row(row.clone()); 
-            }
-        }  
+            Instruction::Noop => continue,
+        }
     }
-
-    println!("{screen}");
+    println!("{}", screen);
 }
 
+fn get_pixel(regx: i32, position: usize) -> char {
+    let row_position = position % CYCLES_PER_ROW;
+    let range = (regx - 1)..=(regx + 1);
+    let position = row_position as i32;
 
-fn get_pixel(regx: i32, cycle: i32) -> char {
-    let range = (regx-1)..=(regx+1);
-    if range.contains(&cycle) {
+    if range.contains(&position) {
         return '#';
-    } 
+    }
 
     '.'
 }
@@ -116,10 +110,6 @@ impl Instruction {
             Self::Addx(x) => *x,
         }
     }
-
-    fn are_same_instruction(&self, other: Self) -> bool {
-        std::mem::discriminant(self) == std::mem::discriminant(&other)
-    }
 }
 
 //
@@ -143,13 +133,6 @@ mod tests {
     fn test_get_sum_of_strengths() {
         let result = get_sum_of_signal_strengths(&parse_instructions("resources/test/10_cathode.txt"));
         assert_eq!(13140, result);
-    }
-
-    #[test]
-    fn test_same_instruction() {
-        let a = Instruction::Addx(2);
-        let b = Instruction::Addx(7);
-        assert!(a.are_same_instruction(b));
     }
 
     #[test]
