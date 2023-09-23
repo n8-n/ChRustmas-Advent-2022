@@ -8,7 +8,8 @@ use super::{
     q07_directories,
     q08_trees,
     q09_rope,
-    q10_cathode
+    q10_cathode,
+    q11_monkeys
 };
 
 pub fn one() {
@@ -117,4 +118,9 @@ pub fn ten() {
 
     println!("Part 2: Print of screen:");
     q10_cathode::print_to_screen(&instructions);
+}
+
+pub fn eleven() {
+    let result = q11_monkeys::get_monkey_business("resources/11_monkeys.txt");
+    println!("Part 1: Monkey business score for top 2 monkeys is {result}");
 }
