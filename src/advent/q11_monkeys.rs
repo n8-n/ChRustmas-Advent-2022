@@ -1,33 +1,82 @@
-use std::{num::ParseIntError};
-
+use std::num::ParseIntError;
 use crate::common::io;
 
 type Monction = Box<dyn Fn(u32) -> u32>; // Monkey Function
+const WORRY_DIVISOR: f32 = 3.0;
 
 pub fn get_monkey_business(filename: &str) -> u32 {
+    let mut monkeys = parse_file_into_monkeys(filename);
+
+    for _ in 0..20 {
+        for i in 0..monkeys.len() {
+            monkey_takes_turn(i, &mut monkeys)
+        }
+    }
+
+    println!("Inspections before sort: {:?}", monkeys.iter().map(|m| m.inspections).collect::<Vec<_>>());
+    monkeys.sort_by_key(|m| m.inspections);
+    println!("Inspections after: {:?}", monkeys.iter().map(|m| m.inspections).collect::<Vec<_>>());
+    monkeys.reverse();
+
+    monkeys[0].inspections * monkeys[1].inspections
+}
+
+fn parse_file_into_monkeys(filename: &str) -> Vec<Monkey> {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
 
-    0
+    lines.chunks(7)
+        .map(|monkey_lines| {
+            //println!("{:#?}", monkey_lines);
+            Monkey::from_lines(monkey_lines)
+        })
+        .collect()
+}
+
+fn monkey_takes_turn(monkey_index: usize, monkeys: &mut Vec<Monkey>) {
+    let monkey = &mut monkeys[monkey_index];
+    let items = &monkey.items;
+    let mut monkey_moves: Vec<(usize, u32)> = Vec::new();
+
+    if items.is_empty() { return; }
+
+    for item in items {
+        monkey.inspections += 1;
+        let op_worry = (monkey.operation)(*item);
+        let div_worry = (op_worry as f32 / WORRY_DIVISOR).floor() as u32;
+        let throw_monkey = (monkey.test)(div_worry) as usize;
+
+        // temporarily store the item moves because we can't borrow mutably multiple times
+        monkey_moves.push((throw_monkey, item.clone()));
+    }
+
+    monkey.items = Vec::new();
+
+    for (i, item) in monkey_moves {
+        let monkey = &mut monkeys[i];
+        monkey.items.push(item);
+    } 
 }
 
 struct Monkey {
     items: Vec<u32>,
     operation: Monction,
-    test: Monction
+    test: Monction,
+    inspections: u32
 }
 
 impl Monkey {
-    fn from_lines(lines: [&str; 7]) -> Monkey {
+    fn from_lines(lines: &[String]) -> Monkey {
         Monkey {
-            items: parse_starting_items(lines[1]),
-            operation: parse_operation(lines[2]).expect("Should parse operation"),
-            test: parse_monkey_test(&lines[3..=5]).expect("Should parse test")
+            items: parse_starting_items(&lines[1]),
+            operation: parse_operation(&lines[2]).expect("Should parse operation"),
+            test: parse_monkey_test(&lines[3..=5]).expect("Should parse test"),
+            inspections: 0
         }
     }
 }
 
 fn parse_starting_items(items: &str) -> Vec<u32> {
-    items.split(' ')
+    items.trim().split(' ')
         .skip(2)
         .map(|item| item.trim_end_matches(","))
         .flat_map(|item| item.parse())
@@ -35,7 +84,7 @@ fn parse_starting_items(items: &str) -> Vec<u32> {
 }
 
 fn parse_operation(operation: &str) -> Result<Monction, &'static str> {
-    let split: Vec<&str> = operation.split(' ').collect();
+    let split: Vec<&str> = operation.trim().split(' ').collect();
 
     if split.len() != 6 {
         return Err("Cannot parse operation line; not enough tokens.");
@@ -55,10 +104,10 @@ fn parse_operation(operation: &str) -> Result<Monction, &'static str> {
     Ok(func)
 }
 
-fn parse_monkey_test(test: &[&str]) -> Result<Monction, &'static str> {
-    let test_line: Vec<&str> = test[0].split(' ').collect();
-    let true_line: Vec<&str> = test[1].split(' ').collect();
-    let false_line: Vec<&str> = test[2].split(' ').collect();
+fn parse_monkey_test(test: &[String]) -> Result<Monction, &'static str> {
+    let test_line: Vec<&str> = test[0].trim().split(' ').collect();
+    let true_line: Vec<&str> = test[1].trim().split(' ').collect();
+    let false_line: Vec<&str> = test[2].trim().split(' ').collect();
 
     if (test_line.len() != 4) || true_line.len() != 6 || false_line.len() != 6 {
         return Err("Cannot parse test lines; not enough tokens.");
@@ -97,7 +146,8 @@ mod tests {
 
     #[test]
     fn test_parse_monkey_test() {
-        let test = ["Test: divisible by 13", "If true: throw to monkey 1", "If false: throw to monkey 3"];
+        let test = ["Test: divisible by 13".to_string(), 
+            "If true: throw to monkey 1".into(), "If false: throw to monkey 3".into()];
         let func = parse_monkey_test(&test).unwrap();
         assert_eq!(1, func(26));
         assert_eq!(3, func(22));
@@ -109,5 +159,18 @@ mod tests {
         assert_eq!(vec![79, 60, 97], result);
         let result = parse_starting_items(&"Starting items: 97");
         assert_eq!(vec![97], result);
+    }
+
+    #[test]
+    fn test_parse_file_into_monkeys() {
+        let result = parse_file_into_monkeys("resources/test/11_monkeys.txt");
+        assert_eq!(4, result.len());
+        let first = &result[0];
+        assert_eq!(vec![79, 98], first.items);
+    }
+
+    #[test]
+    fn test_get_monkey_business() {
+        assert_eq!(10605, get_monkey_business("resources/test/11_monkeys.txt"))
     }
 }
