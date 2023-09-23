@@ -1,12 +1,15 @@
-use super::q01_calories;
-use super::q02_rock_paper_scissors::{self as rps, ParseMode};
-use super::q03_rucksack;
-use super::q04_cleaning;
-use super::q05_supply_crates::{self, Crane};
-use super::q06_datastream;
-use super::q07_directories;
-use super::q08_trees;
-use super::q09_rope;
+use super::{
+    q01_calories,
+    q02_rock_paper_scissors::{self as rps, ParseMode},
+    q03_rucksack,
+    q04_cleaning,
+    q05_supply_crates::{self, Crane},
+    q06_datastream,
+    q07_directories,
+    q08_trees,
+    q09_rope,
+    q10_cathode
+};
 
 pub fn one() {
     let elf_calories =
@@ -105,4 +108,13 @@ pub fn nine() {
 
     let result = q09_rope::get_number_of_spaces_visited("resources/09_rope.txt", 10);
     println!("Part 2: Number of positions visited by tail is {result}");
+}
+
+pub fn ten() {
+    let instructions = q10_cathode::parse_instructions("resources/10_cathode.txt");
+    let result = q10_cathode::get_sum_of_signal_strengths(&instructions);
+    println!("Part 1: Sum of six signal strengths is {result}");
+
+    println!("Part 2: Print of screen:");
+    q10_cathode::print_to_screen(&instructions);
 }
