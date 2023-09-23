@@ -1,5 +1,5 @@
-use std::num::ParseIntError;
 use crate::common::io;
+use std::num::ParseIntError;
 
 type Monction = Box<dyn Fn(u32) -> u32>; // Monkey Function
 const WORRY_DIVISOR: f32 = 3.0;
@@ -13,22 +13,21 @@ pub fn get_monkey_business(filename: &str) -> u32 {
         }
     }
 
-    println!("Inspections before sort: {:?}", monkeys.iter().map(|m| m.inspections).collect::<Vec<_>>());
     monkeys.sort_by_key(|m| m.inspections);
-    println!("Inspections after: {:?}", monkeys.iter().map(|m| m.inspections).collect::<Vec<_>>());
-    monkeys.reverse();
-
-    monkeys[0].inspections * monkeys[1].inspections
+    monkeys
+        .iter()
+        .rev()
+        .take(2)
+        .map(|m| m.inspections)
+        .product::<u32>()
 }
 
 fn parse_file_into_monkeys(filename: &str) -> Vec<Monkey> {
     let lines = io::read_file_as_vector(filename).expect("Could not read file");
 
-    lines.chunks(7)
-        .map(|monkey_lines| {
-            //println!("{:#?}", monkey_lines);
-            Monkey::from_lines(monkey_lines)
-        })
+    lines
+        .chunks(7)
+        .map(|monkey_lines| Monkey::from_lines(monkey_lines))
         .collect()
 }
 
@@ -37,7 +36,9 @@ fn monkey_takes_turn(monkey_index: usize, monkeys: &mut Vec<Monkey>) {
     let items = &monkey.items;
     let mut monkey_moves: Vec<(usize, u32)> = Vec::new();
 
-    if items.is_empty() { return; }
+    if items.is_empty() {
+        return;
+    }
 
     for item in items {
         monkey.inspections += 1;
@@ -46,7 +47,7 @@ fn monkey_takes_turn(monkey_index: usize, monkeys: &mut Vec<Monkey>) {
         let throw_monkey = (monkey.test)(div_worry) as usize;
 
         // temporarily store the item moves because we can't borrow mutably multiple times
-        monkey_moves.push((throw_monkey, item.clone()));
+        monkey_moves.push((throw_monkey, div_worry));
     }
 
     monkey.items = Vec::new();
@@ -54,14 +55,14 @@ fn monkey_takes_turn(monkey_index: usize, monkeys: &mut Vec<Monkey>) {
     for (i, item) in monkey_moves {
         let monkey = &mut monkeys[i];
         monkey.items.push(item);
-    } 
+    }
 }
 
 struct Monkey {
     items: Vec<u32>,
     operation: Monction,
     test: Monction,
-    inspections: u32
+    inspections: u32,
 }
 
 impl Monkey {
@@ -70,13 +71,15 @@ impl Monkey {
             items: parse_starting_items(&lines[1]),
             operation: parse_operation(&lines[2]).expect("Should parse operation"),
             test: parse_monkey_test(&lines[3..=5]).expect("Should parse test"),
-            inspections: 0
+            inspections: 0,
         }
     }
 }
 
 fn parse_starting_items(items: &str) -> Vec<u32> {
-    items.trim().split(' ')
+    items
+        .trim()
+        .split(' ')
         .skip(2)
         .map(|item| item.trim_end_matches(","))
         .flat_map(|item| item.parse())
@@ -98,7 +101,7 @@ fn parse_operation(operation: &str) -> Result<Monction, &'static str> {
         ("+", "old") => Box::new(|x: u32| x + x),
         ("*", _) => Box::new(move |x: u32| x * op_value_int.as_ref().unwrap()),
         ("+", _) => Box::new(move |x: u32| x + op_value_int.as_ref().unwrap()),
-        (_, _) => return Err("Invalid function operand")
+        (_, _) => return Err("Invalid function operand"),
     };
 
     Ok(func)
@@ -117,7 +120,7 @@ fn parse_monkey_test(test: &[String]) -> Result<Monction, &'static str> {
     let true_monkey: u32 = true_line[5].parse().expect("Should parse int");
     let false_monkey: u32 = false_line[5].parse().expect("Should parse int");
 
-    Ok(Box::new(move |item: u32|  {
+    Ok(Box::new(move |item: u32| {
         if item % divisible == 0 {
             true_monkey
         } else {

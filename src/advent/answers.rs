@@ -1,15 +1,9 @@
 use super::{
     q01_calories,
     q02_rock_paper_scissors::{self as rps, ParseMode},
-    q03_rucksack,
-    q04_cleaning,
+    q03_rucksack, q04_cleaning,
     q05_supply_crates::{self, Crane},
-    q06_datastream,
-    q07_directories,
-    q08_trees,
-    q09_rope,
-    q10_cathode,
-    q11_monkeys
+    q06_datastream, q07_directories, q08_trees, q09_rope, q10_cathode, q11_monkeys,
 };
 
 pub fn one() {
