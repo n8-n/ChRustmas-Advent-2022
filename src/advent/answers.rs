@@ -115,6 +115,9 @@ pub fn ten() {
 }
 
 pub fn eleven() {
-    let result = q11_monkeys::get_monkey_business("resources/11_monkeys.txt");
+    let result = q11_monkeys::get_monkey_business_part1("resources/11_monkeys.txt");
     println!("Part 1: Monkey business score for top 2 monkeys is {result}");
+
+    let result = q11_monkeys::get_monkey_business_part2("resources/11_monkeys.txt");
+    println!("Part 2: Monkey business score for top 2 monkeys is {result}");
 }
