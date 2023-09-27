@@ -11,6 +11,7 @@ mod q07_directories;
 mod q08_trees;
 mod q09_rope;
 mod q10_cathode;
+mod q11_monkeys;
 
 pub fn run() {
     loop {
@@ -52,6 +53,7 @@ fn run_fn_for_exercise(n: u8) {
         8 => answers::eight(),
         9 => answers::nine(),
         10 => answers::ten(),
+        11 => answers::eleven(),
         _ => println!("Exercise not yet implemented."),
     }
 }

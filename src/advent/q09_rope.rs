@@ -40,7 +40,7 @@ impl Rope {
     fn move_head(&mut self, direction: Point, steps: u8) {
         for _ in 0..steps {
             let mut to_move = direction.clone();
-            
+
             let mut iter = self.knots.iter_mut().peekable();
 
             while let Some(knot) = iter.next() {
