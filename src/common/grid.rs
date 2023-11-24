@@ -117,7 +117,7 @@ impl<T: Clone> Grid<T> {
         for i in -1..=1 {
             for j in -1..=1 {
                 // skip diagonals for now...
-                if i == j {
+                if i == j || i + j == 0 {
                     continue;
                 }
 
@@ -126,8 +126,8 @@ impl<T: Clone> Grid<T> {
                 }
 
                 let p = Point {
-                    x: point.x + i as usize,
-                    y: point.y + j as usize,
+                    x: (point.x as isize + i) as usize,
+                    y: (point.y as isize + j) as usize,
                 };
                 if is_in_bounds(p) {
                     points.push(p);
@@ -139,7 +139,7 @@ impl<T: Clone> Grid<T> {
     }
 }
 
-#[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[derive(Eq, PartialEq, Clone, Copy, Debug, Ord, PartialOrd)]
 pub struct Point {
     pub x: usize,
     pub y: usize,
@@ -256,6 +256,25 @@ mod tests {
 
     #[test]
     fn test_get_adjacent_points() {
-        // TODO
+        let grid = get_test_grid();
+        assert_eq!(
+            grid.get_adjacent_points(Point { x: 0, y: 0 }),
+            vec![Point { x: 0, y: 1 }, Point { x: 1, y: 0 }]
+        );
+        assert_eq!(
+            grid.get_adjacent_points(Point { x: 4, y: 4 }),
+            vec![Point { x: 3, y: 4 }, Point { x: 4, y: 3 }]
+        );
+
+        let mut expected = vec![
+            Point { x: 1, y: 3 },
+            Point { x: 3, y: 3 },
+            Point { x: 2, y: 2 },
+            Point { x: 2, y: 4 },
+        ];
+        expected.sort();
+        let mut actual = grid.get_adjacent_points(Point { x: 2, y: 3 });
+        actual.sort();
+        assert_eq!(actual, expected);
     }
 }
