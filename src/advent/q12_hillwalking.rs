@@ -2,9 +2,7 @@ use std::fmt::Display;
 
 use crate::common::{grid::Grid, io};
 
-
 pub fn get_smallest_distance(filename: &str) -> u32 {
-
     0
 }
 
@@ -23,18 +21,19 @@ fn read_file_into_grid(filename: &str) -> Grid<Node> {
 #[derive(Clone, Debug)]
 struct Node {
     elevation: char,
-    visited: bool
+    visited: bool,
 }
 
 impl Node {
     pub fn from_char(c: char) -> Self {
-        Node { elevation: c, visited: false }
+        Node {
+            elevation: c,
+            visited: false,
+        }
     }
 
     fn from_line(line: &str) -> Vec<Self> {
-        line.chars()
-            .map(|c| Self::from_char(c))
-            .collect()
+        line.chars().map(|c| Self::from_char(c)).collect()
     }
 }
 
@@ -43,7 +42,6 @@ impl Display for Node {
         write!(f, "{}", self.elevation)
     }
 }
-
 
 //
 //
@@ -57,5 +55,4 @@ mod tests {
         let grid = read_file_into_grid("resources/test/12_hillwalking.txt");
         println!("{grid}");
     }
-
 }

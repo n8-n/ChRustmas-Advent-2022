@@ -3,7 +3,7 @@ use super::{
     q02_rock_paper_scissors::{self as rps, ParseMode},
     q03_rucksack, q04_cleaning,
     q05_supply_crates::{self, Crane},
-    q06_datastream, q07_directories, q08_trees, q09_rope, q10_cathode, q11_monkeys, 
+    q06_datastream, q07_directories, q08_trees, q09_rope, q10_cathode, q11_monkeys,
 };
 
 pub fn one() {
@@ -121,7 +121,6 @@ pub fn eleven() {
     let result = q11_monkeys::get_monkey_business_part2("resources/11_monkeys.txt");
     println!("Part 2: Monkey business score for top 2 monkeys is {result}");
 }
-
 
 pub fn twelve() {
     let result = 0;

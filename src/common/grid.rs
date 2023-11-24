@@ -83,6 +83,66 @@ impl<T: Clone> Grid<T> {
 
         new_grid
     }
+
+    /// Convert a element vector index to a xy coordinate point
+    pub fn index_to_point(&self, index: usize) -> Option<Point> {
+        if index > self.elements.len() {
+            return None;
+        }
+
+        let x = index % self.columns;
+        let y: usize = (index as f32 / self.rows as f32).floor() as usize;
+
+        Some(Point { x, y })
+    }
+
+    pub fn get_element(&self, point: Point) -> Option<&T> {
+        if point.x > self.columns || point.y > self.rows {
+            return None;
+        }
+
+        let index: usize = (self.rows * point.y) + point.x;
+        self.elements.get(index)
+    }
+
+    pub fn get_adjacent_points(&self, point: Point) -> Vec<Point> {
+        let mut points = Vec::<Point>::new();
+
+        if point.x > self.columns || point.y > self.rows {
+            return points;
+        }
+
+        let is_in_bounds = |p: Point| p.x < self.columns && p.y < self.rows;
+
+        for i in -1..=1 {
+            for j in -1..=1 {
+                // skip diagonals for now...
+                if i == j {
+                    continue;
+                }
+
+                if (point.x as isize + i < 0) || (point.y as isize + j < 0) {
+                    continue;
+                }
+
+                let p = Point {
+                    x: point.x + i as usize,
+                    y: point.y + j as usize,
+                };
+                if is_in_bounds(p) {
+                    points.push(p);
+                }
+            }
+        }
+
+        points
+    }
+}
+
+#[derive(Eq, PartialEq, Clone, Copy, Debug)]
+pub struct Point {
+    pub x: usize,
+    pub y: usize,
 }
 
 impl<T: Display + std::fmt::Debug + Clone> Display for Grid<T> {
@@ -173,5 +233,29 @@ mod tests {
 
         let inner_grid = grid.get_inner_grid();
         assert_eq!(expected_grid, inner_grid);
+    }
+
+    #[test]
+    fn test_element_to_point() {
+        let grid = get_test_grid();
+        assert_eq!(Point { x: 4, y: 0 }, grid.index_to_point(4).unwrap());
+        assert_eq!(Point { x: 3, y: 1 }, grid.index_to_point(8).unwrap());
+        assert_eq!(Point { x: 0, y: 0 }, grid.index_to_point(0).unwrap());
+        assert!(grid.index_to_point(10000).is_none())
+    }
+
+    #[test]
+    fn test_get_element_from_point() {
+        let grid = get_test_grid();
+        assert_eq!(0, grid.get_element(Point { x: 0, y: 0 }).unwrap().clone());
+        assert_eq!(7, grid.get_element(Point { x: 3, y: 1 }).unwrap().clone());
+        assert_eq!(20, grid.get_element(Point { x: 1, y: 4 }).unwrap().clone());
+        assert_eq!(7, grid.get_element(Point { x: 4, y: 4 }).unwrap().clone());
+        assert_eq!(9, grid.get_element(Point { x: 0, y: 4 }).unwrap().clone());
+    }
+
+    #[test]
+    fn test_get_adjacent_points() {
+        // TODO
     }
 }
