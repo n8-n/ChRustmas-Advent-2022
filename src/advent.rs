@@ -12,6 +12,8 @@ mod q08_trees;
 mod q09_rope;
 mod q10_cathode;
 mod q11_monkeys;
+
+#[allow(dead_code)]
 mod q12_hillwalking;
 
 pub fn run() {

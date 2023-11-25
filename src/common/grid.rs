@@ -110,6 +110,15 @@ impl<T: Clone> Grid<T> {
         self.elements.get(index)
     }
 
+    pub fn get_element_mut(&mut self, point: Point) -> Option<&mut T> {
+        if point.x >= self.columns || point.y >= self.rows {
+            return None;
+        }
+
+        let index: usize = (self.columns * point.y) + point.x;
+        self.elements.get_mut(index)
+    }
+
     pub fn get_adjacent_points(&self, point: Point) -> Vec<Point> {
         let mut points = Vec::<Point>::new();
 
