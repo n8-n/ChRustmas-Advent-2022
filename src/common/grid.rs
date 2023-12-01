@@ -90,7 +90,7 @@ impl<T: Clone> Grid<T> {
             return None;
         }
 
-        let x = if index >= self.columns { 
+        let x = if index >= self.columns {
             index % self.columns
         } else {
             index
@@ -294,7 +294,13 @@ mod tests {
         actual.sort();
         assert_eq!(actual, expected);
 
-        assert_eq!(Vec::<Point>::new(), grid.get_adjacent_points(Point { x: 4, y: 3 }));
-        assert_eq!(Vec::<Point>::new(), grid.get_adjacent_points(Point { x: 2, y: 5 }));
+        assert_eq!(
+            Vec::<Point>::new(),
+            grid.get_adjacent_points(Point { x: 4, y: 3 })
+        );
+        assert_eq!(
+            Vec::<Point>::new(),
+            grid.get_adjacent_points(Point { x: 2, y: 5 })
+        );
     }
 }
