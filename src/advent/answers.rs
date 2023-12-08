@@ -1,3 +1,5 @@
+use crate::advent::q12_hillwalking;
+
 use super::{
     q01_calories,
     q02_rock_paper_scissors::{self as rps, ParseMode},
@@ -120,4 +122,12 @@ pub fn eleven() {
 
     let result = q11_monkeys::get_monkey_business_part2("resources/11_monkeys.txt");
     println!("Part 2: Monkey business score for top 2 monkeys is {result}");
+}
+
+pub fn twelve() {
+    let result = q12_hillwalking::get_fewest_steps_from_start("resources/12_hillwalking.txt");
+    println!("Part 1: Fewest steps from start to peak is {result}");
+
+    let result = q12_hillwalking::get_fewest_steps_from_low_elevation("resources/12_hillwalking.txt");
+    println!("Part 2: Fewest steps from low elevation is {result}");
 }

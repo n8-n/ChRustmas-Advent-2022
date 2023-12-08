@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 slab_tree = "0.3.2"
+pathfinding = "4.4.0"

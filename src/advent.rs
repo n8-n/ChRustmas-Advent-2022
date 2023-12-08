@@ -13,6 +13,9 @@ mod q09_rope;
 mod q10_cathode;
 mod q11_monkeys;
 
+#[allow(dead_code)]
+mod q12_hillwalking;
+
 pub fn run() {
     loop {
         if let Err(e) = prompt_user_for_choice() {
@@ -54,6 +57,7 @@ fn run_fn_for_exercise(n: u8) {
         9 => answers::nine(),
         10 => answers::ten(),
         11 => answers::eleven(),
+        12 => answers::twelve(),
         _ => println!("Exercise not yet implemented."),
     }
 }
