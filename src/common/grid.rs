@@ -151,6 +151,10 @@ impl<T: Clone> Grid<T> {
 
         points
     }
+
+    pub fn is_edge_node(&self, point: &Point) -> bool {
+        (point.x == 0 || point.x == self.columns - 1) || (point.y == 0 || point.y == self.rows - 1)
+    }
 }
 
 #[derive(Eq, PartialEq, Clone, Copy, Debug, Ord, PartialOrd, Hash)]
@@ -308,5 +312,24 @@ mod tests {
             Vec::<Point>::new(),
             grid.get_adjacent_points(&Point { x: 2, y: 5 })
         );
+    }
+
+    //grid.add_row(vec![0, 0, 1, 5]);
+    // grid.add_row(vec![1, 3, 1, 7]);
+    // grid.add_row(vec![8, 7, 1, 10]);
+    // grid.add_row(vec![99, 2, 1, 12]);
+    // grid.add_row(vec![9, 20, 61, 2]);
+
+    #[test]
+    fn test_is_edge_node() {
+        let grid = get_test_grid(); 
+        assert!(grid.is_edge_node(&Point { x: 0, y: 0 }));
+        assert!(grid.is_edge_node(&Point { x: 0, y: 4 }));
+        assert!(grid.is_edge_node(&Point { x: 3, y: 4 }));
+        assert!(grid.is_edge_node(&Point { x: 3, y: 0 }));
+
+        assert!(!grid.is_edge_node(&Point { x: 2, y: 3 }));
+        assert!(!grid.is_edge_node(&Point { x: 1, y: 1 }));
+        assert!(!grid.is_edge_node(&Point { x: 5, y: 5 }));
     }
 }

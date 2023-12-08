@@ -125,6 +125,9 @@ pub fn eleven() {
 }
 
 pub fn twelve() {
-    let result = q12_hillwalking::get_smallest_distance("resources/12_hillwalking.txt");
-    println!("Part 1: Fewest steps required is {result}");
+    let result = q12_hillwalking::get_fewest_steps_from_start("resources/12_hillwalking.txt");
+    println!("Part 1: Fewest steps from start to peak is {result}");
+
+    let result = q12_hillwalking::get_fewest_steps_from_low_elevation("resources/12_hillwalking.txt");
+    println!("Part 2: Fewest steps from low elevation is {result}");
 }

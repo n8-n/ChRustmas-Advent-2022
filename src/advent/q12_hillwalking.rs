@@ -7,9 +7,23 @@ use crate::common::{
     io,
 };
 
-pub fn get_smallest_distance(filename: &str) -> usize {
+pub fn get_fewest_steps_from_start(filename: &str) -> usize {
     let nodes = read_file_into_grid(filename);
-    calculate_distance(&nodes)
+    
+    let start = find_start_node_position(&nodes).expect("Could not find start node");
+    let result = bfs(&start, |n| node_successors(n, &nodes), |n| n.elevation == 'E').expect("Should have a path");
+    
+    result.len() - 1    // remove extra start or end node, idk
+}
+
+pub fn get_fewest_steps_from_low_elevation(filename: &str) -> usize {
+    let nodes = read_file_into_grid(filename);
+
+    find_a_nodes_at_edge(&nodes)
+        .iter()
+        .flat_map(|start| bfs(start, |n| node_successors(n, &nodes), |n| n.elevation == 'E'))
+        .map(|path| path.len() - 1)
+        .min().expect("Should have min")
 }
 
 fn read_file_into_grid(filename: &str) -> Grid<Node> {
@@ -25,20 +39,11 @@ fn read_file_into_grid(filename: &str) -> Grid<Node> {
     grid
 }
 
-fn calculate_distance(nodes: &Grid<Node>) -> usize {
-    let start = find_start_node_position(nodes).expect("Could not find start node");
-
-    let result = bfs(&start, |n| node_successors(n, nodes), |n| n.elevation == 'E').expect("Should have a path");
-    
-    //print_path(&result);
-    result.len() - 1    // remove extra start or end node, idk
-}
-
-fn print_path(path: &Vec<&Node>) {
-    for (i, n) in path.iter().enumerate() {
-        println!("{}: {}", i, n.position);
-    }
-}
+// fn print_path(path: &Vec<&Node>) {
+//     for (i, n) in path.iter().enumerate() {
+//         println!("{}: {}", i, n.position);
+//     }
+// }
 
 fn node_successors<'a>(current: &Node, nodes: &'a Grid<Node>) -> Vec<&'a Node> {
     nodes
@@ -56,6 +61,18 @@ fn find_start_node_position(nodes: &Grid<Node>) -> Option<&Node> {
         }
     }
     None
+}
+
+fn find_a_nodes_at_edge(nodes: &Grid<Node>) -> Vec<&Node> {
+    let mut a_nodes = Vec::new();
+
+    for n in nodes.elements.iter() {
+        if (n.elevation == 'a' || n.elevation == 'S') && nodes.is_edge_node(&n.position) {
+            a_nodes.push(n);
+        }
+    }
+
+    a_nodes
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -186,7 +203,19 @@ mod tests {
     }
 
     #[test]
-    fn test_calculate_distance() {
-        assert_eq!(31, get_smallest_distance("resources/test/12_hillwalking.txt"));
+    fn test_calculate_distance_from_start_to_peak() {
+        assert_eq!(31, get_fewest_steps_from_start("resources/test/12_hillwalking.txt"));
+    }
+
+    #[test]
+    fn test_get_a_nodes() {
+        let grid = read_file_into_grid("resources/test/12_hillwalking.txt");
+        let result = find_a_nodes_at_edge(&grid);
+        assert_eq!(result.len(), 6);
+    }
+
+    #[test]
+    fn test_calculate_fewest_steps_to_low_elevation() {
+        assert_eq!(29, get_fewest_steps_from_low_elevation("resources/test/12_hillwalking.txt"));
     }
 }
