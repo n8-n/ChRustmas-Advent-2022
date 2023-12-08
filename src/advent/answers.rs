@@ -1,3 +1,5 @@
+use crate::advent::q12_hillwalking;
+
 use super::{
     q01_calories,
     q02_rock_paper_scissors::{self as rps, ParseMode},
@@ -123,6 +125,6 @@ pub fn eleven() {
 }
 
 pub fn twelve() {
-    let result = 0;
+    let result = q12_hillwalking::get_smallest_distance("resources/12_hillwalking.txt");
     println!("Part 1: Fewest steps required is {result}");
 }

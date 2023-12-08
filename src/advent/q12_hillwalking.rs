@@ -1,12 +1,15 @@
 use std::fmt::Display;
 
-use crate::common::{grid::{Grid, Point}, io};
+use pathfinding::directed::dijkstra::dijkstra;
 
-pub fn get_smallest_distance(filename: &str) -> u32 {
-    let _nodes = read_file_into_grid(filename);
+use crate::common::{
+    grid::{Grid, Point},
+    io,
+};
 
-
-    0
+pub fn get_smallest_distance(filename: &str) -> usize {
+    let nodes = read_file_into_grid(filename);
+    calculate_distance(&nodes)
 }
 
 fn read_file_into_grid(filename: &str) -> Grid<Node> {
@@ -23,39 +26,62 @@ fn read_file_into_grid(filename: &str) -> Grid<Node> {
 }
 
 // Use Djikstra'a Algorithm
-fn calculate_distance(_nodes: &mut Grid<Node>) -> u32 {
+fn calculate_distance(nodes: &Grid<Node>) -> usize {
     // https://docs.rs/pathfinding/latest/pathfinding/directed/dijkstra/fn.dijkstra.html
+    let start = find_start_node_position(nodes).expect("Could not find start node");
 
-    0
+    let result = dijkstra(&start, |n| node_successors(n, nodes), |n| n.elevation == 'E').expect("Should have a path");
+    
+    // print_path(&result);
+    result.1
 }
 
-fn find_start_node_position(nodes: &Grid<Node>) -> Option<Point> {
-    for (i, n) in nodes.elements.iter().enumerate() {
+fn print_path(input: &(Vec<&Node>, usize)) {
+    let (path, steps) = input;
+    println!("Steps: {steps}");
+
+    for (i, n) in path.iter().enumerate() {
+        println!("{}: {}", i, n.position);
+    }
+}
+
+fn node_successors<'a>(current: &Node, nodes: &'a Grid<Node>) -> Vec<(&'a Node, usize)> {
+    nodes
+        .get_adjacent_points(&current.position)
+        .iter()
+        .flat_map(|p| nodes.get_element(p))
+        .flat_map(|n| current.distance_from(&n).map(|d| (n, d)))
+        .collect()
+}
+
+fn find_start_node_position(nodes: &Grid<Node>) -> Option<&Node> {
+    for n in nodes.elements.iter() {
         if n.elevation == 'S' {
-            return nodes.index_to_point(i);
+            return Some(n);
         }
     }
     None
 }
 
-
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 struct Node {
     elevation: char,
-    position: Point
+    position: Point,
 }
 
 impl Node {
     fn new(elevation: char, position: Point) -> Self {
         Node {
-            elevation, position
+            elevation,
+            position,
         }
     }
 
     fn from_line(line: &str, y: usize) -> Vec<Self> {
         line.chars()
             .enumerate()
-            .map(|(i, c)| Self::new(c, Point { x: i, y: y })).collect()
+            .map(|(i, c)| Self::new(c, Point { x: i, y: y }))
+            .collect()
     }
 
     fn distance_from(&self, other: &Node) -> Option<usize> {
@@ -71,8 +97,8 @@ impl Node {
                 return None;
             }
         }
-
-        Some(0)
+        // Same elevation: 1 step
+        Some(1)
     }
 }
 
@@ -84,33 +110,33 @@ impl Display for Node {
 
 fn char_to_number(c: char) -> usize {
     match c {
-        'a' | 'S' => 1,
-        'b' => 2,
-        'c' => 3,
-        'd' => 4,
-        'e' => 5,
-        'f' => 6,
-        'g' => 7,
-        'h' => 8,
-        'i' => 9,
-        'j' => 10,
-        'k' => 11,
-        'l' => 12,
-        'm' => 13,
-        'n' => 14,
-        'o' => 15,
-        'p' => 16,
-        'q' => 17,
-        'r' => 18,
-        's' => 19,
-        't' => 20,
-        'u' => 21,
-        'v' => 22,
-        'w' => 23,
-        'x' => 24,
-        'y' => 25,
-        'z' | 'E' => 26,
-        _ => 0
+        'a' | 'S' => 0,
+        'b' => 1,
+        'c' => 2,
+        'd' => 3,
+        'e' => 4,
+        'f' => 5,
+        'g' => 6,
+        'h' => 7,
+        'i' => 8,
+        'j' => 9,
+        'k' => 10,
+        'l' => 11,
+        'm' => 12,
+        'n' => 13,
+        'o' => 14,
+        'p' => 15,
+        'q' => 16,
+        'r' => 17,
+        's' => 18,
+        't' => 19,
+        'u' => 20,
+        'v' => 21,
+        'w' => 22,
+        'x' => 23,
+        'y' => 24,
+        'z' | 'E' => 25,
+        _ => 0,
     }
 }
 
@@ -124,28 +150,48 @@ mod tests {
     #[test]
     fn test_find_start_node() {
         let grid = read_file_into_grid("resources/test/12_hillwalking.txt");
-        assert_eq!(find_start_node_position(&grid).unwrap(), Point { x: 0, y: 0 });
+        assert_eq!(
+            find_start_node_position(&grid).unwrap().position,
+            Point { x: 0, y: 0 }
+        );
         let grid = read_file_into_grid("resources/test/12_hillwalking_modified_test.txt");
         let point = Point { x: 5, y: 3 };
-        assert_eq!(find_start_node_position(&grid).unwrap(), point);
+        assert_eq!(find_start_node_position(&grid).unwrap().position, point);
 
-        let node = grid.get_element(point);
+        let node = grid.get_element(&point);
         assert_eq!(node.unwrap().elevation, 'S');
     }
 
     #[test]
     fn test_distance_from() {
         let point = Point { x: 0, y: 0 };
-        
-        let node1 = Node { elevation: 'a', position: point.clone() };
-        let node2 = Node { elevation: 'b', position: point.clone() };
+
+        let node1 = Node {
+            elevation: 'a',
+            position: point.clone(),
+        };
+        let node2 = Node {
+            elevation: 'b',
+            position: point.clone(),
+        };
         assert_eq!(node1.distance_from(&node2), Some(1));
         assert_eq!(node2.distance_from(&node1), Some(1));
-        assert_eq!(node1.distance_from(&node1), Some(0));
+        assert_eq!(node1.distance_from(&node1), Some(1));
 
-        let node1 = Node { elevation: 'c', position: point.clone() };
-        let node2 = Node { elevation: 'h', position: point.clone() };
+        let node1 = Node {
+            elevation: 'c',
+            position: point.clone(),
+        };
+        let node2 = Node {
+            elevation: 'h',
+            position: point.clone(),
+        };
         assert_eq!(node1.distance_from(&node2), None);
         assert_eq!(node2.distance_from(&node1), Some(5));
+    }
+
+    #[test]
+    fn test_calculate_distance() {
+        assert_eq!(31, get_smallest_distance("resources/test/12_hillwalking.txt"));
     }
 }

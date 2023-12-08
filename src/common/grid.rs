@@ -101,7 +101,7 @@ impl<T: Clone> Grid<T> {
         Some(Point { x, y })
     }
 
-    pub fn get_element(&self, point: Point) -> Option<&T> {
+    pub fn get_element(&self, point: &Point) -> Option<&T> {
         if point.x >= self.columns || point.y >= self.rows {
             return None;
         }
@@ -110,7 +110,7 @@ impl<T: Clone> Grid<T> {
         self.elements.get(index)
     }
 
-    pub fn get_element_mut(&mut self, point: Point) -> Option<&mut T> {
+    pub fn get_element_mut(&mut self, point: &Point) -> Option<&mut T> {
         if point.x >= self.columns || point.y >= self.rows {
             return None;
         }
@@ -119,7 +119,7 @@ impl<T: Clone> Grid<T> {
         self.elements.get_mut(index)
     }
 
-    pub fn get_adjacent_points(&self, point: Point) -> Vec<Point> {
+    pub fn get_adjacent_points(&self, point: &Point) -> Vec<Point> {
         let mut points = Vec::<Point>::new();
 
         if point.x >= self.columns || point.y >= self.rows {
@@ -153,10 +153,16 @@ impl<T: Clone> Grid<T> {
     }
 }
 
-#[derive(Eq, PartialEq, Clone, Copy, Debug, Ord, PartialOrd)]
+#[derive(Eq, PartialEq, Clone, Copy, Debug, Ord, PartialOrd, Hash)]
 pub struct Point {
     pub x: usize,
     pub y: usize,
+}
+
+impl Display for Point {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(x: {}, y: {})", self.x, self.y)
+    }
 }
 
 impl<T: Display + std::fmt::Debug + Clone> Display for Grid<T> {
@@ -264,22 +270,22 @@ mod tests {
     #[test]
     fn test_get_element_from_point() {
         let grid = get_test_grid();
-        assert_eq!(0, grid.get_element(Point { x: 0, y: 0 }).unwrap().clone());
-        assert_eq!(7, grid.get_element(Point { x: 3, y: 1 }).unwrap().clone());
-        assert_eq!(20, grid.get_element(Point { x: 1, y: 4 }).unwrap().clone());
-        assert_eq!(2, grid.get_element(Point { x: 3, y: 4 }).unwrap().clone());
-        assert_eq!(9, grid.get_element(Point { x: 0, y: 4 }).unwrap().clone());
+        assert_eq!(0, grid.get_element(&Point { x: 0, y: 0 }).unwrap().clone());
+        assert_eq!(7, grid.get_element(&Point { x: 3, y: 1 }).unwrap().clone());
+        assert_eq!(20, grid.get_element(&Point { x: 1, y: 4 }).unwrap().clone());
+        assert_eq!(2, grid.get_element(&Point { x: 3, y: 4 }).unwrap().clone());
+        assert_eq!(9, grid.get_element(&Point { x: 0, y: 4 }).unwrap().clone());
     }
 
     #[test]
     fn test_get_adjacent_points() {
         let grid = get_test_grid();
         assert_eq!(
-            grid.get_adjacent_points(Point { x: 0, y: 0 }),
+            grid.get_adjacent_points(&Point { x: 0, y: 0 }),
             vec![Point { x: 0, y: 1 }, Point { x: 1, y: 0 }]
         );
         assert_eq!(
-            grid.get_adjacent_points(Point { x: 3, y: 4 }),
+            grid.get_adjacent_points(&Point { x: 3, y: 4 }),
             vec![Point { x: 2, y: 4 }, Point { x: 3, y: 3 }]
         );
 
@@ -290,17 +296,17 @@ mod tests {
             Point { x: 2, y: 4 },
         ];
         expected.sort();
-        let mut actual = grid.get_adjacent_points(Point { x: 2, y: 3 });
+        let mut actual = grid.get_adjacent_points(&Point { x: 2, y: 3 });
         actual.sort();
         assert_eq!(actual, expected);
 
         assert_eq!(
             Vec::<Point>::new(),
-            grid.get_adjacent_points(Point { x: 4, y: 3 })
+            grid.get_adjacent_points(&Point { x: 4, y: 3 })
         );
         assert_eq!(
             Vec::<Point>::new(),
-            grid.get_adjacent_points(Point { x: 2, y: 5 })
+            grid.get_adjacent_points(&Point { x: 2, y: 5 })
         );
     }
 }
