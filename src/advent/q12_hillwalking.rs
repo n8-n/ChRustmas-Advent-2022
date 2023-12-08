@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use pathfinding::directed::dijkstra::dijkstra;
+use pathfinding::directed::bfs::bfs;
 
 use crate::common::{
     grid::{Grid, Point},
@@ -25,32 +25,27 @@ fn read_file_into_grid(filename: &str) -> Grid<Node> {
     grid
 }
 
-// Use Djikstra'a Algorithm
 fn calculate_distance(nodes: &Grid<Node>) -> usize {
-    // https://docs.rs/pathfinding/latest/pathfinding/directed/dijkstra/fn.dijkstra.html
     let start = find_start_node_position(nodes).expect("Could not find start node");
 
-    let result = dijkstra(&start, |n| node_successors(n, nodes), |n| n.elevation == 'E').expect("Should have a path");
+    let result = bfs(&start, |n| node_successors(n, nodes), |n| n.elevation == 'E').expect("Should have a path");
     
-    // print_path(&result);
-    result.1
+    //print_path(&result);
+    result.len() - 1    // remove extra start or end node, idk
 }
 
-fn print_path(input: &(Vec<&Node>, usize)) {
-    let (path, steps) = input;
-    println!("Steps: {steps}");
-
+fn print_path(path: &Vec<&Node>) {
     for (i, n) in path.iter().enumerate() {
         println!("{}: {}", i, n.position);
     }
 }
 
-fn node_successors<'a>(current: &Node, nodes: &'a Grid<Node>) -> Vec<(&'a Node, usize)> {
+fn node_successors<'a>(current: &Node, nodes: &'a Grid<Node>) -> Vec<&'a Node> {
     nodes
         .get_adjacent_points(&current.position)
         .iter()
         .flat_map(|p| nodes.get_element(p))
-        .flat_map(|n| current.distance_from(&n).map(|d| (n, d)))
+        .filter(|n| current.distance_from(&n).is_some())
         .collect()
 }
 
